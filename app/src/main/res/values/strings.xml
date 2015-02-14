@@ -5,4 +5,8 @@
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
 
+    <string name="sign_in_fallback_error">There was an issue with signing in to the Google servers. Please try again later.</string>
+    <string name="sign_in_failed">Sign in failed. Please try again.</string>
+    <string name="already_signed_out">You are already signed out.</string>
+
 </resources>
