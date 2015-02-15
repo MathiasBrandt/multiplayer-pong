@@ -1,6 +1,7 @@
 package com.mathiasbrandt.android.multiplayerpong;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,23 +13,37 @@ import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.games.Games;
 import com.google.android.gms.games.GamesActivityResultCodes;
+import com.google.android.gms.games.Player;
 import com.google.example.games.basegameutils.BaseGameUtils;
 
 
 public class MainActivity
         extends Activity
-        implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+        implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
+            MainMenuFragment.FragmentListener {
 
-    private String TAG = "MainActivity";
+    // tag for debug logging
+    private final boolean DEBUG = true;
+    private final String TAG = "MainActivity";
+
+    // request codes
+    private static final int RC_SIGN_IN = 9001;
+
+    // fragments
+    MainMenuFragment mMainMenuFragment;
+
+    // client used to interact with Google APIs
     private GoogleApiClient googleApiClient;
+
+    // are we currently resolving a connection failure?
     private boolean isResolvingConnectionFailure = false;
-    private static int RESOLVE_CONNECTION_ERROR = 9001;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // create the Google API client
         googleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
@@ -36,31 +51,44 @@ public class MainActivity
                 .addScope(Games.SCOPE_GAMES)
                 .build();
 
-        // register callback for Google+ Sign-in Button, since it does not work in XML
-        SignInButton btnSignIn = (SignInButton) findViewById(R.id.btn_sign_in);
-        btnSignIn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                btnSignInClicked(v);
-            }
-        });
+        // create fragments
+        mMainMenuFragment = new MainMenuFragment();
+
+        // add initial fragment
+        getFragmentManager().beginTransaction().add(R.id.fragment_container, mMainMenuFragment).commit();
+    }
+
+    private void switchToFragment(Fragment newFragment) {
+        getFragmentManager().beginTransaction().replace(R.id.fragment_container, newFragment).commit();
+    }
+
+    private boolean isSignedIn() {
+        return googleApiClient != null && googleApiClient.isConnected();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
+        Log.d(TAG, "onStart(): Connecting to Google Play Games.");
         googleApiClient.connect();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        googleApiClient.disconnect();
+        Log.d(TAG, "onStop(): Disconnecting from Google Play Games.");
+        if(isSignedIn()) {
+            googleApiClient.disconnect();
+        }
     }
 
     @Override
     public void onConnected(Bundle bundle) {
         Log.d(TAG, "Connected to Google Play Games");
+
+        // set player info in main menu fragment
+        Player player = Games.Players.getCurrentPlayer(googleApiClient);
+        mMainMenuFragment.setPlayer(player);
     }
 
     @Override
@@ -79,7 +107,7 @@ public class MainActivity
         if(BaseGameUtils.resolveConnectionFailure(this,
                                                 googleApiClient,
                                                 connectionResult,
-                                                RESOLVE_CONNECTION_ERROR,
+                RC_SIGN_IN,
                                                 getString(R.string.sign_in_fallback_error))) {
             isResolvingConnectionFailure = false;
         }
@@ -87,7 +115,7 @@ public class MainActivity
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if(requestCode == RESOLVE_CONNECTION_ERROR) {
+        if(requestCode == RC_SIGN_IN) {
             isResolvingConnectionFailure = false;
 
             if(resultCode == RESULT_OK) {
