@@ -32,15 +32,6 @@ public class MainMenuFragment
     private FragmentListener mListener;
     private Player player;
 
-    public static MainMenuFragment newInstance(String param1, String param2) {
-        MainMenuFragment fragment = new MainMenuFragment();
-        Bundle args = new Bundle();
-        args.putString("param1", param1);
-        args.putString("param2", param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
     public MainMenuFragment() {
         // Required empty public constructor
     }
@@ -64,8 +55,7 @@ public class MainMenuFragment
         try {
             mListener = (FragmentListener) activity;
         } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString()
-                    + " must implement FragmentListener");
+            throw new ClassCastException(activity.toString() + " must implement FragmentListener");
         }
     }
 
