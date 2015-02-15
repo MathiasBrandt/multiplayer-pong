@@ -85,7 +85,8 @@
             android:layout_height="wrap_content"
             android:layout_alignLeft="@id/btn_leaderboards"
             android:layout_below="@id/btn_leaderboards"
-            android:layout_marginTop="20dp"/>
+            android:layout_marginTop="20dp"
+            android:visibility="gone"/>
     </RelativeLayout>
     <!-- /bottom -->
 

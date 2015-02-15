@@ -89,6 +89,10 @@ public class MainActivity
         // set player info in main menu fragment
         Player player = Games.Players.getCurrentPlayer(googleApiClient);
         mMainMenuFragment.setPlayer(player);
+
+        // hide sign-in button
+        SignInButton signInButton = (SignInButton) findViewById(R.id.btn_sign_in);
+        signInButton.setVisibility(View.GONE);
     }
 
     @Override
@@ -122,6 +126,10 @@ public class MainActivity
                 googleApiClient.connect();
             } else {
                 BaseGameUtils.showActivityResultError(this, requestCode, resultCode, R.string.sign_in_failed);
+
+                // show sign-in button
+                SignInButton signInButton = (SignInButton) findViewById(R.id.btn_sign_in);
+                signInButton.setVisibility(View.VISIBLE);
             }
         }
 
