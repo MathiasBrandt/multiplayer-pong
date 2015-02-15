@@ -24,7 +24,10 @@ import com.google.android.gms.games.Player;
  * Use the {@link MainMenuFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class MainMenuFragment extends Fragment {
+public class MainMenuFragment
+        extends Fragment
+        implements View.OnClickListener {
+
     private final String TAG = "MainMenuFragment";
     private FragmentListener mListener;
     private Player player;
@@ -47,14 +50,10 @@ public class MainMenuFragment extends Fragment {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_main_menu, container, false);
 
-        // register callback for Google+ Sign-in Button, since it does not work in XML
-        SignInButton btnSignIn = (SignInButton) v.findViewById(R.id.btn_sign_in);
-        btnSignIn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // do something
-            }
-        });
+        // register callbacks for buttons
+        v.findViewById(R.id.btn_achievements).setOnClickListener(this);
+        v.findViewById(R.id.btn_leaderboards).setOnClickListener(this);
+        v.findViewById(R.id.btn_sign_in).setOnClickListener(this);
 
         return v;
     }
@@ -95,6 +94,21 @@ public class MainMenuFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onClick(View v) {
+        switch(v.getId()) {
+            case R.id.btn_achievements:
+                mListener.btnAchievementsClicked();
+                break;
+            case R.id.btn_leaderboards:
+                mListener.btnLeaderboardsClicked();
+                break;
+            case R.id.btn_sign_in:
+                mListener.btnSignInClicked();
+                break;
+        }
+    }
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -102,7 +116,9 @@ public class MainMenuFragment extends Fragment {
      * activity.
      */
     public interface FragmentListener {
-
+        public void btnAchievementsClicked();
+        public void btnLeaderboardsClicked();
+        public void btnSignInClicked();
     }
 
 }

@@ -138,10 +138,22 @@ public class MainActivity
         }
     }
 
-    public void btnSignInClicked(View v) {
+    @Override
+    public void btnAchievementsClicked() {
+
+    }
+
+    @Override
+    public void btnLeaderboardsClicked() {
+
+    }
+
+    @Override
+    public void btnSignInClicked() {
         if(googleApiClient.isConnected()) {
-            Log.d(TAG, "Already connected to Google Play Games");
+            Log.d(TAG, "Already connected to Google Play Games.");
         } else {
+            Log.d(TAG, "btnSignIn: Connecting to Google Play Games.");
             googleApiClient.connect();
         }
     }
