@@ -24,7 +24,7 @@
             android:layout_centerVertical="true"
             android:layout_marginLeft="25dp"
             android:background="#669900"
-            android:src="@drawable/player_icon"/>
+            android:src="@drawable/player_icon" />
 
         <TextView
             android:id="@+id/tv_player_name"
