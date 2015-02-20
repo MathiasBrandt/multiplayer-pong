@@ -1,7 +1,5 @@
 package com.mathiasbrandt.android.multiplayerpong;
 
-import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 import android.view.WindowManager;
@@ -137,7 +135,7 @@ public class RoomListener
         context.setRoom(room);
 
         // leave the room
-        Games.RealTimeMultiplayer.leave(context.getGoogleApiClient(), null, room.getRoomId());
+        Games.RealTimeMultiplayer.leave(context.getGoogleApiClient(), this, room.getRoomId());
 
         // clear the flag that keeps the screen on
         context.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -270,4 +268,6 @@ public class RoomListener
             return;
         }
     }
+
+
 }
