@@ -8,5 +8,10 @@
     <string name="sign_in_failed">Sign in failed. Please try again.</string>
     <string name="already_signed_out">You are already signed out.</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="btn_quick_game">Quick Game</string>
+    <string name="btn_invite_players">Invite Players</string>
+    <string name="btn_view_invitations">View Invitations</string>
+    <string name="btn_achievements">Achievements</string>
+    <string name="btn_leaderboards">Leaderboards</string>
 
 </resources>

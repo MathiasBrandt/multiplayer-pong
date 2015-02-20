@@ -42,9 +42,19 @@ public class MainMenuFragment
         View v = inflater.inflate(R.layout.fragment_main_menu, container, false);
 
         // register callbacks for buttons
-        v.findViewById(R.id.btn_achievements).setOnClickListener(this);
-        v.findViewById(R.id.btn_leaderboards).setOnClickListener(this);
-        v.findViewById(R.id.btn_sign_in).setOnClickListener(this);
+        int[] buttonIds = {
+                R.id.btn_quick_game,
+                R.id.btn_invite_players,
+                R.id.btn_view_invitations,
+                R.id.btn_achievements,
+                R.id.btn_leaderboards,
+                R.id.btn_sign_in,
+                R.id.btn_sign_out
+        };
+        
+        for(int buttonId : buttonIds) {
+            v.findViewById(buttonId).setOnClickListener(this);
+        }
 
         return v;
     }
@@ -78,7 +88,7 @@ public class MainMenuFragment
         String playerTitleString = player.getTitle();
 
         if(playerTitleString != null) {
-            playerTitle.setText(String.format("\"%s\"", playerTitleString));
+            playerTitle.setText(String.format("%s", playerTitleString));
         } else {
             playerTitle.setVisibility(View.GONE);
         }
@@ -87,6 +97,15 @@ public class MainMenuFragment
     @Override
     public void onClick(View v) {
         switch(v.getId()) {
+            case R.id.btn_quick_game:
+                mListener.btnQuickGameClicked();
+                break;
+            case R.id.btn_invite_players:
+                mListener.btnInvitePlayersClicked();
+                break;
+            case R.id.btn_view_invitations:
+                mListener.btnViewInvitationsClicked();
+                break;
             case R.id.btn_achievements:
                 mListener.btnAchievementsClicked();
                 break;
@@ -95,6 +114,9 @@ public class MainMenuFragment
                 break;
             case R.id.btn_sign_in:
                 mListener.btnSignInClicked();
+                break;
+            case R.id.btn_sign_out:
+                mListener.btnSignOutClicked();
                 break;
         }
     }
@@ -106,9 +128,13 @@ public class MainMenuFragment
      * activity.
      */
     public interface FragmentListener {
+        public void btnQuickGameClicked();
+        public void btnInvitePlayersClicked();
+        public void btnViewInvitationsClicked();
         public void btnAchievementsClicked();
         public void btnLeaderboardsClicked();
         public void btnSignInClicked();
+        public void btnSignOutClicked();
     }
 
 }
