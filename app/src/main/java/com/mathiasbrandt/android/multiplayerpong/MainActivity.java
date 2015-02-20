@@ -1,7 +1,10 @@
 package com.mathiasbrandt.android.multiplayerpong;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.Fragment;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -18,11 +21,9 @@ import com.google.android.gms.games.GamesActivityResultCodes;
 import com.google.android.gms.games.Player;
 import com.google.android.gms.games.multiplayer.Invitation;
 import com.google.android.gms.games.multiplayer.Multiplayer;
-import com.google.android.gms.games.multiplayer.realtime.RealTimeMessageReceivedListener;
+import com.google.android.gms.games.multiplayer.OnInvitationReceivedListener;
 import com.google.android.gms.games.multiplayer.realtime.Room;
 import com.google.android.gms.games.multiplayer.realtime.RoomConfig;
-import com.google.android.gms.games.multiplayer.realtime.RoomStatusUpdateListener;
-import com.google.android.gms.games.multiplayer.realtime.RoomUpdateListener;
 import com.google.example.games.basegameutils.BaseGameUtils;
 
 import java.util.ArrayList;
@@ -33,7 +34,10 @@ public class MainActivity
         implements
             GoogleApiClient.ConnectionCallbacks,
             GoogleApiClient.OnConnectionFailedListener,
-            MainMenuFragment.FragmentListener {
+            MainMenuFragment.MainMenuFragmentListener,
+            GameFragment.GameFragmentListener
+            //OnInvitationReceivedListener
+            {
 
     // tag for debug logging
     private final boolean DEBUG = true;
@@ -45,7 +49,8 @@ public class MainActivity
     public static final int RC_WAITING_ROOM = 7003;
 
     // fragments
-    MainMenuFragment mMainMenuFragment;
+    private MainMenuFragment mMainMenuFragment;
+    private GameFragment mGameFragment;
 
     // client used to interact with Google APIs
     private GoogleApiClient googleApiClient;
@@ -55,6 +60,7 @@ public class MainActivity
 
     private RoomListener roomListener;
     private Room room;
+    private Invitation storedInvitation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +79,7 @@ public class MainActivity
 
         // create fragments
         mMainMenuFragment = new MainMenuFragment();
+        mGameFragment = new GameFragment();
 
         // add initial fragment
         getFragmentManager().beginTransaction().add(R.id.fragment_container, mMainMenuFragment).commit();
@@ -117,6 +124,9 @@ public class MainActivity
         // show sign-out button
         Button signOutButton = (Button) findViewById(R.id.btn_sign_out);
         signOutButton.setVisibility(View.VISIBLE);
+
+        // add invitation listener
+        //Games.Invitations.registerInvitationListener(googleApiClient, this);
 
         // check invitations
         if(connectionHint != null) {
@@ -212,6 +222,11 @@ public class MainActivity
                 // all invited players were successfully connected to the room
                 // start the game!
                 Log.d(TAG, "All players connected - start game!");
+
+                Bundle arguments = new Bundle();
+                arguments.putParcelable("room", room);
+                mGameFragment.setArguments(arguments);
+                switchToFragment(mGameFragment);
             } else if(resultCode == RESULT_CANCELED) {
                 // player dismissed the waiting room
                 // it should be possible to minimize the waiting room and continue connecting in the background
@@ -241,6 +256,59 @@ public class MainActivity
     public void setRoom(Room room) {
         this.room = room;
     }
+
+    /**
+     * Callback invoked when a new invitation is received.
+     * @param invitation
+     */
+    /* @Override
+    public void onInvitationReceived(Invitation invitation) {
+        final String invitationId = invitation.getInvitationId();
+
+        // show in-game popup to let user know of pending invitation
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.invitation_dialog_title)
+                .setMessage(R.string.invitation_dialog_message)
+                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        RoomConfig.Builder roomConfigBuilder = RoomConfig.builder(roomListener)
+                                .setMessageReceivedListener(roomListener)
+                                .setRoomStatusUpdateListener(roomListener);
+                        roomConfigBuilder.setInvitationIdToAccept(invitationId);
+                        Games.RealTimeMultiplayer.join(googleApiClient, roomConfigBuilder.build());
+
+                        // prevent screen from sleeping during handshake
+                        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+                        // now, go to game screen
+                        Bundle arguments = new Bundle();
+                        arguments.putParcelable("room", room);
+                        mGameFragment.setArguments(arguments);
+                        switchToFragment(mGameFragment);
+                    }
+                })
+                .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Toast.makeText(MainActivity.this, "Invitation declined", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .show();
+
+
+        // store invitation for use when player accepts this invitation
+        //mIncomingInvitationId = invitation.getInvitationId();
+    } */
+
+    /**
+     * Callback invoked when a previously received invitation has been removed from the local device.
+     * @param invitationId
+     */
+    /* @Override
+    public void onInvitationRemoved(String invitationId) {
+
+    } */
 
     /**
      * Quick game button callback

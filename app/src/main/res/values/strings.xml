@@ -13,5 +13,8 @@
     <string name="btn_view_invitations">View Invitations</string>
     <string name="btn_achievements">Achievements</string>
     <string name="btn_leaderboards">Leaderboards</string>
-
+    <string name="invitation_dialog_title">New Game Invitation!</string>
+    <string name="invitation_dialog_message">You have received a new game invitation.</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
 </resources>
