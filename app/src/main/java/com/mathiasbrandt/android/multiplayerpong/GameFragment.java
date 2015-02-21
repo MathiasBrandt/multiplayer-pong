@@ -16,7 +16,7 @@ import com.google.android.gms.games.multiplayer.realtime.Room;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class GameFragment extends Fragment {
+public class GameFragment extends Fragment implements View.OnClickListener {
     private final String TAG = "GameFragment";
     private GameFragmentListener mListener;
     private Room room;
@@ -41,6 +41,9 @@ public class GameFragment extends Fragment {
             }
         }
 
+        // set temp button listener
+        v.findViewById(R.id.btn_send_something).setOnClickListener(this);
+
         return v;
     }
 
@@ -61,12 +64,26 @@ public class GameFragment extends Fragment {
     }
 
     /**
+     * Called when a view has been clicked.
+     *
+     * @param v The view that was clicked.
+     */
+    @Override
+    public void onClick(View v) {
+        switch(v.getId()) {
+            case R.id.btn_send_something:
+                mListener.tempButtonClicked();
+                break;
+        }
+    }
+
+    /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
      * to the activity and potentially other fragments contained in that
      * activity.
      */
     public interface GameFragmentListener {
-
+        public void tempButtonClicked();
     }
 }

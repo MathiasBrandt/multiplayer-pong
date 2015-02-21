@@ -40,6 +40,9 @@ public class RoomListener
     @Override
     public void onRealTimeMessageReceived(RealTimeMessage realTimeMessage) {
         Log.d(TAG, "onRealTimeMessageReceived");
+
+        String message = new String(realTimeMessage.getMessageData());
+        Log.d(TAG, "Message received: " + message);
     }
 
     /**

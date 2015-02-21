@@ -22,6 +22,7 @@ import com.google.android.gms.games.Player;
 import com.google.android.gms.games.multiplayer.Invitation;
 import com.google.android.gms.games.multiplayer.Multiplayer;
 import com.google.android.gms.games.multiplayer.OnInvitationReceivedListener;
+import com.google.android.gms.games.multiplayer.Participant;
 import com.google.android.gms.games.multiplayer.realtime.Room;
 import com.google.android.gms.games.multiplayer.realtime.RoomConfig;
 import com.google.example.games.basegameutils.BaseGameUtils;
@@ -309,6 +310,19 @@ public class MainActivity
     public void onInvitationRemoved(String invitationId) {
 
     } */
+
+    @Override
+    public void tempButtonClicked() {
+        Player player = Games.Players.getCurrentPlayer(googleApiClient);
+        String msg = "why hello there!";
+        byte[] message = msg.getBytes();
+
+        for(Participant p : room.getParticipants()) {
+            if(p.getParticipantId() != player.getPlayerId()) {
+                Games.RealTimeMultiplayer.sendReliableMessage(googleApiClient, null, message, room.getRoomId(), p.getParticipantId());
+            }
+        }
+    }
 
     /**
      * Quick game button callback
