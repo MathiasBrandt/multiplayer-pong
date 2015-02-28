@@ -74,9 +74,11 @@ public class MainMenuFragment
 
     public void setPlayer(Player player) {
         // download player icon
-        Uri iconUri = player.getIconImageUri();
-        ImageManager imageManager = ImageManager.create(getActivity());
-        imageManager.loadImage((ImageView) getActivity().findViewById(R.id.img_player_picture), iconUri, R.drawable.player_icon);
+        if(player.hasIconImage()) {
+            Uri iconUri = player.getIconImageUri();
+            ImageManager imageManager = ImageManager.create(getActivity());
+            imageManager.loadImage((ImageView) getActivity().findViewById(R.id.img_player_picture), iconUri, R.drawable.player_icon);
+        }
 
         TextView playerName = (TextView) getActivity().findViewById(R.id.tv_player_name);
         playerName.setText(player.getDisplayName());
