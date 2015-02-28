@@ -8,7 +8,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
+import com.google.android.gms.games.Player;
 import com.google.android.gms.games.multiplayer.Participant;
 import com.google.android.gms.games.multiplayer.realtime.Room;
 
@@ -20,6 +22,10 @@ public class GameFragment extends Fragment implements View.OnClickListener {
     private final String TAG = "GameFragment";
     private GameFragmentListener mListener;
     private Room room;
+    private Player player;
+    private Participant opponent;
+    private TextView playerScore;
+    private TextView opponentScore;
 
     public GameFragment() {
         // Required empty public constructor
@@ -32,17 +38,17 @@ public class GameFragment extends Fragment implements View.OnClickListener {
 
         Bundle arguments = getArguments();
         this.room = arguments.getParcelable(MainActivity.PARCELABLE_ROOM);
+        this.player = arguments.getParcelable(MainActivity.PARCELABLE_PLAYER);
 
-        if(room != null) {
-            Log.d(TAG, String.format("In game. Room: %s", room.getRoomId()));
-            Log.d(TAG, "Participants:");
-            for (Participant p : room.getParticipants()) {
-                Log.d(TAG, String.format("%s (%s)", p.getDisplayName(), p.getParticipantId()));
+        // get the opponent and set name in gui
+        for(Participant participant : room.getParticipants()) {
+            if(!participant.getPlayer().getPlayerId().equals(player.getPlayerId())) {
+                this.opponent = participant;
+                break;
             }
         }
 
-        // set temp button listener
-        //v.findViewById(R.id.btn_send_something).setOnClickListener(this);
+        setPlayerNames(v);
 
         return v;
     }
@@ -64,6 +70,17 @@ public class GameFragment extends Fragment implements View.OnClickListener {
     }
 
     /**
+     * Sets the player's and opponent's names in the gui
+     */
+    private void setPlayerNames(View context) {
+        TextView tvPlayerName = (TextView) context.findViewById(R.id.tv_player_name);
+        tvPlayerName.setText(player.getDisplayName());
+
+        TextView tvOpponentName = (TextView) context.findViewById(R.id.tv_opponent_name);
+        tvOpponentName.setText(opponent.getDisplayName());
+    }
+
+    /**
      * Called when a view has been clicked.
      *
      * @param v The view that was clicked.
@@ -71,9 +88,7 @@ public class GameFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onClick(View v) {
         switch(v.getId()) {
-            /*case R.id.btn_send_something:
-                mListener.tempButtonClicked();
-                break;*/
+
         }
     }
 
@@ -84,6 +99,6 @@ public class GameFragment extends Fragment implements View.OnClickListener {
      * activity.
      */
     public interface GameFragmentListener {
-        //public void tempButtonClicked();
+
     }
 }

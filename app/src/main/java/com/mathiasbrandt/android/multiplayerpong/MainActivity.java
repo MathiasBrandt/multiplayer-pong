@@ -36,9 +36,7 @@ public class MainActivity
             GoogleApiClient.ConnectionCallbacks,
             GoogleApiClient.OnConnectionFailedListener,
             MainMenuFragment.MainMenuFragmentListener,
-            GameFragment.GameFragmentListener
-            //OnInvitationReceivedListener
-            {
+            GameFragment.GameFragmentListener {
 
     // tag for debug logging
     private final boolean DEBUG = true;
@@ -50,6 +48,7 @@ public class MainActivity
     public static final int RC_WAITING_ROOM = 7003;
 
     public static final String PARCELABLE_ROOM = "room";
+    public static final String PARCELABLE_PLAYER = "player";
 
     // fragments
     private MainMenuFragment mMainMenuFragment;
@@ -220,6 +219,7 @@ public class MainActivity
 
                 Bundle arguments = new Bundle();
                 arguments.putParcelable(PARCELABLE_ROOM, room);
+                arguments.putParcelable(PARCELABLE_PLAYER, Games.Players.getCurrentPlayer(googleApiClient));
                 mGameFragment.setArguments(arguments);
                 switchToFragment(mGameFragment);
             } else if(resultCode == RESULT_CANCELED) {
@@ -400,4 +400,19 @@ public class MainActivity
             Toast.makeText(this, R.string.already_signed_out, Toast.LENGTH_SHORT).show();
         }
     }
+
+    /*
+        public void tempButtonClicked() {
+        Player player = Games.Players.getCurrentPlayer(googleApiClient);
+        String msg = "why hello there!";
+        byte[] message = msg.getBytes();
+
+        for(Participant p : room.getParticipants()) {
+            if(p.getParticipantId() != player.getPlayerId()) {
+                Games.RealTimeMultiplayer.sendReliableMessage(googleApiClient, null, message, room.getRoomId(), p.getParticipantId());
+            }
+        }
+    }
+
+     */
 }

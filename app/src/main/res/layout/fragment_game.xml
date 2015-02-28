@@ -19,20 +19,28 @@
             android:gravity="center_horizontal">
 
             <TextView
-                android:id="@+id/tv_playing_against"
+                android:id="@+id/tv_player_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/playing_against"
+                android:text="@string/player_name_placeholder"
+                android:textColor="@android:color/white"/>
+
+            <TextView
+                android:id="@+id/tv_versus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/versus"
                 android:textColor="@android:color/white"
-                android:layout_marginRight="4dp"/>
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:layout_toRightOf="@id/tv_player_name"/>
 
             <TextView
                 android:id="@+id/tv_opponent_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="OPPONENT NAME"
-                android:layout_toRightOf="@id/tv_playing_against"
-                android:layout_alignBottom="@id/tv_playing_against"
+                android:text="@string/player_name_placeholder"
+                android:layout_toRightOf="@id/tv_versus"
                 android:textColor="@android:color/white"/>
             </RelativeLayout>
 
@@ -42,15 +50,15 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/opponent_container"
-            android:gravity="center_horizontal">
+            android:gravity="center_horizontal"
+            android:layout_marginTop="10dp">
 
             <TextView
-                android:id="@+id/tv_own_score"
+                android:id="@+id/tv_player_score"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@android:color/white"
                 android:text="@string/initial_score"
-                android:layout_alignBottom="@id/tv_score_separator"
                 android:textSize="@dimen/abc_text_size_display_1_material"/>
 
             <TextView
@@ -61,7 +69,7 @@
                 android:textColor="@android:color/white"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
-                android:layout_toRightOf="@id/tv_own_score"
+                android:layout_toRightOf="@id/tv_player_score"
                 android:textSize="@dimen/abc_text_size_display_1_material"/>
 
             <TextView
@@ -71,7 +79,6 @@
                 android:textColor="@android:color/white"
                 android:text="@string/initial_score"
                 android:layout_toRightOf="@id/tv_score_separator"
-                android:layout_alignBottom="@id/tv_score_separator"
                 android:textSize="@dimen/abc_text_size_display_1_material"/>
         </RelativeLayout>
     </RelativeLayout>

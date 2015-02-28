@@ -17,8 +17,9 @@
     <string name="invitation_dialog_message">You have received a new game invitation.</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
-    <string name="playing_against">Match versus</string>
+    <string name="versus">vs</string>
     <string name="score">Score:</string>
     <string name="initial_score">0</string>
     <string name="score_separator">-</string>
+    <string name="player_name_placeholder">PLAYER NAME</string>
 </resources>
