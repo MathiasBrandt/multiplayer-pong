@@ -49,6 +49,8 @@ public class MainActivity
     public static final int RC_SELECT_PLAYERS = 7002;
     public static final int RC_WAITING_ROOM = 7003;
 
+    public static final String PARCELABLE_ROOM = "room";
+
     // fragments
     private MainMenuFragment mMainMenuFragment;
     private GameFragment mGameFragment;
@@ -142,7 +144,7 @@ public class MainActivity
                 Games.RealTimeMultiplayer.join(googleApiClient, roomConfigBuilder.build());
 
                 // prevent screen from sleeping during handshake
-                getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                preventScreenSleep(true);
 
                 // go to game screen
                 Log.d(TAG, "Invitation accepted, go to game screen");
@@ -176,6 +178,7 @@ public class MainActivity
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.d(TAG, String.format("onAR: req: %d, res: %d", requestCode, resultCode));
 
+        // returned from sign in. Try to connect
         if(requestCode == RC_SIGN_IN) {
             isResolvingConnectionFailure = false;
 
@@ -188,36 +191,27 @@ public class MainActivity
                 SignInButton signInButton = (SignInButton) findViewById(R.id.btn_sign_in);
                 signInButton.setVisibility(View.VISIBLE);
             }
+        // returned from select opponent activity. Get opponent and create a game room.
         } else if(requestCode == RC_SELECT_PLAYERS) {
             if(resultCode == RESULT_OK) {
                 // get invitee
-                Bundle extras = data.getExtras();
-
-                //for(String id : data.getStringArrayListExtra(Games.EXTRA_PLAYER_IDS)) {
-                //    Log.d(TAG, id);
-                //}
-
                 ArrayList<String> inviteeList = data.getStringArrayListExtra(Games.EXTRA_PLAYER_IDS);
                 if(inviteeList == null) {
                     Log.d(TAG, "Invitee list is null, handle auto matching!");
                     return;
                 }
 
-                RoomConfig.Builder roomConfigBuilder = RoomConfig.builder(roomListener)
-                        .setMessageReceivedListener(roomListener)
-                        .setRoomStatusUpdateListener(roomListener);
+                RoomConfig roomConfig = buildRoom(inviteeList);
 
-                roomConfigBuilder.addPlayersToInvite(inviteeList);
-
-                RoomConfig roomConfig = roomConfigBuilder.build();
                 Games.RealTimeMultiplayer.create(googleApiClient, roomConfig);
 
                 // prevent screen from sleeping during handshake
-                getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                preventScreenSleep(true);
             } else {
                 // user canceled
                 return;
             }
+        // returned from the waiting room. All players are ready - start the game
         } else if(requestCode == RC_WAITING_ROOM) {
             if(resultCode == RESULT_OK) {
                 // all invited players were successfully connected to the room
@@ -225,7 +219,7 @@ public class MainActivity
                 Log.d(TAG, "All players connected - start game!");
 
                 Bundle arguments = new Bundle();
-                arguments.putParcelable("room", room);
+                arguments.putParcelable(PARCELABLE_ROOM, room);
                 mGameFragment.setArguments(arguments);
                 switchToFragment(mGameFragment);
             } else if(resultCode == RESULT_CANCELED) {
@@ -235,18 +229,38 @@ public class MainActivity
                 Log.d(TAG, "Player dismissed the waiting room (back button)");
 
                 Games.RealTimeMultiplayer.leave(googleApiClient, roomListener, room.getRoomId());
-                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                preventScreenSleep(false);
             } else if(resultCode == GamesActivityResultCodes.RESULT_LEFT_ROOM) {
                 // player selected the leave room option
                 Log.d(TAG, "Player left the room");
 
                 Games.RealTimeMultiplayer.leave(googleApiClient, roomListener, room.getRoomId());
-                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                preventScreenSleep(false);
             }
         }
 
         if(resultCode == GamesActivityResultCodes.RESULT_RECONNECT_REQUIRED) {
             Log.d(TAG, "Reconnect required");
+        }
+    }
+
+    private RoomConfig buildRoom(ArrayList<String> inviteeList) {
+        RoomConfig.Builder roomConfigBuilder = RoomConfig.builder(roomListener)
+                .setMessageReceivedListener(roomListener)
+                .setRoomStatusUpdateListener(roomListener);
+
+        if(inviteeList != null) {
+            roomConfigBuilder.addPlayersToInvite(inviteeList);
+        }
+
+        return roomConfigBuilder.build();
+    }
+
+    public void preventScreenSleep(Boolean enable) {
+        if(enable) {
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        } else {
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         }
     }
 
@@ -280,7 +294,7 @@ public class MainActivity
                         Games.RealTimeMultiplayer.join(googleApiClient, roomConfigBuilder.build());
 
                         // prevent screen from sleeping during handshake
-                        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                        preventScreenSleep(true);
 
                         // now, go to game screen
                         Bundle arguments = new Bundle();
@@ -310,19 +324,6 @@ public class MainActivity
     public void onInvitationRemoved(String invitationId) {
 
     } */
-
-    @Override
-    public void tempButtonClicked() {
-        Player player = Games.Players.getCurrentPlayer(googleApiClient);
-        String msg = "why hello there!";
-        byte[] message = msg.getBytes();
-
-        for(Participant p : room.getParticipants()) {
-            if(p.getParticipantId() != player.getPlayerId()) {
-                Games.RealTimeMultiplayer.sendReliableMessage(googleApiClient, null, message, room.getRoomId(), p.getParticipantId());
-            }
-        }
-    }
 
     /**
      * Quick game button callback

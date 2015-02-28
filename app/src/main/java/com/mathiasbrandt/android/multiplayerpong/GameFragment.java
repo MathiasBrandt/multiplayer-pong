@@ -31,7 +31,7 @@ public class GameFragment extends Fragment implements View.OnClickListener {
         View v = inflater.inflate(R.layout.fragment_game, container, false);
 
         Bundle arguments = getArguments();
-        this.room = arguments.getParcelable("room");
+        this.room = arguments.getParcelable(MainActivity.PARCELABLE_ROOM);
 
         if(room != null) {
             Log.d(TAG, String.format("In game. Room: %s", room.getRoomId()));
@@ -42,7 +42,7 @@ public class GameFragment extends Fragment implements View.OnClickListener {
         }
 
         // set temp button listener
-        v.findViewById(R.id.btn_send_something).setOnClickListener(this);
+        //v.findViewById(R.id.btn_send_something).setOnClickListener(this);
 
         return v;
     }
@@ -71,9 +71,9 @@ public class GameFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onClick(View v) {
         switch(v.getId()) {
-            case R.id.btn_send_something:
+            /*case R.id.btn_send_something:
                 mListener.tempButtonClicked();
-                break;
+                break;*/
         }
     }
 
@@ -84,6 +84,6 @@ public class GameFragment extends Fragment implements View.OnClickListener {
      * activity.
      */
     public interface GameFragmentListener {
-        public void tempButtonClicked();
+        //public void tempButtonClicked();
     }
 }

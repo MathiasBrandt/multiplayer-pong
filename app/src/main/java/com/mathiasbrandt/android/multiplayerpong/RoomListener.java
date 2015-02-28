@@ -141,7 +141,7 @@ public class RoomListener
         Games.RealTimeMultiplayer.leave(context.getGoogleApiClient(), this, room.getRoomId());
 
         // clear the flag that keeps the screen on
-        context.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        context.preventScreenSleep(false);
 
         // show error message and return to main screen
     }
@@ -201,7 +201,7 @@ public class RoomListener
 
         if(statusCode != GamesStatusCodes.STATUS_OK) {
             // let screen go to sleep
-            context.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+            context.preventScreenSleep(false);
 
             // show error message, return to main screen.
             Toast.makeText(context, "Could not create room :(", Toast.LENGTH_LONG).show();
@@ -227,7 +227,7 @@ public class RoomListener
 
         if(statusCode != GamesStatusCodes.STATUS_OK) {
             // let screen go to sleep
-            context.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+            context.preventScreenSleep(false);
 
             // show error message, return to main screen.
             Toast.makeText(context, "Could not join room :(", Toast.LENGTH_LONG).show();
@@ -263,7 +263,7 @@ public class RoomListener
 
         if(statusCode != GamesStatusCodes.STATUS_OK) {
             // let screen go to sleep
-            context.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+            context.preventScreenSleep(false);
 
             // show error message, return to main screen.
             Toast.makeText(context, "Could not connect to room :(", Toast.LENGTH_LONG).show();
