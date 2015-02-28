@@ -1,12 +1,88 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.mathiasbrandt.android.multiplayerpong.GameFragment">
 
-    <Button
-        android:id="@+id/btn_send_something"
-        android:layout_width="wrap_content"
+    <RelativeLayout
+        android:id="@+id/game_info_container"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Send stuff :D" />
+        android:background="@android:color/black"
+        android:padding="15dp">
 
-</FrameLayout>
+        <RelativeLayout
+            android:id="@+id/opponent_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal">
+
+            <TextView
+                android:id="@+id/tv_playing_against"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/playing_against"
+                android:textColor="@android:color/white"
+                android:layout_marginRight="4dp"/>
+
+            <TextView
+                android:id="@+id/tv_opponent_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="OPPONENT NAME"
+                android:layout_toRightOf="@id/tv_playing_against"
+                android:layout_alignBottom="@id/tv_playing_against"
+                android:textColor="@android:color/white"/>
+            </RelativeLayout>
+
+
+        <RelativeLayout
+            android:id="@+id/score_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/opponent_container"
+            android:gravity="center_horizontal">
+
+            <TextView
+                android:id="@+id/tv_own_score"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
+                android:text="@string/initial_score"
+                android:layout_alignBottom="@id/tv_score_separator"
+                android:textSize="@dimen/abc_text_size_display_1_material"/>
+
+            <TextView
+                android:id="@+id/tv_score_separator"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/score_separator"
+                android:textColor="@android:color/white"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_toRightOf="@id/tv_own_score"
+                android:textSize="@dimen/abc_text_size_display_1_material"/>
+
+            <TextView
+                android:id="@+id/tv_opponent_score"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
+                android:text="@string/initial_score"
+                android:layout_toRightOf="@id/tv_score_separator"
+                android:layout_alignBottom="@id/tv_score_separator"
+                android:textSize="@dimen/abc_text_size_display_1_material"/>
+        </RelativeLayout>
+    </RelativeLayout>
+    
+    <RelativeLayout
+        android:id="@+id/game_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/game_info_container"
+        android:background="@android:color/black"
+        android:layout_marginTop="5dp">
+
+        </RelativeLayout>
+</RelativeLayout>
