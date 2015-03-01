@@ -175,6 +175,11 @@ public class GameFragment extends Fragment implements View.OnClickListener, Coll
 
     }
 
+    @Override
+    public void onBallCollisionWithBat() {
+        pongBall.flipHorizontalVelocity();
+    }
+
     /**
      * Called when a view has been clicked.
      *

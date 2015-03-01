@@ -75,4 +75,20 @@ public class PongBat extends View {
             }
         });
     }
+
+    public float getLeftEdge() {
+        return getX();
+    }
+
+    public float getTopEdge() {
+        return getY();
+    }
+
+    public float getRightEdge() {
+        return getX() + Common.toPixels(context, BAT_WIDTH_DP);
+    }
+
+    public float getBottomEdge() {
+        return getY() + Common.toPixels(context, BAT_HEIGHT_DP);
+    }
 }

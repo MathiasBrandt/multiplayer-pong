@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.LinearLayout;
 
 import com.mathiasbrandt.android.multiplayerpong.CollisionDetector;
+import com.mathiasbrandt.android.multiplayerpong.Common;
 
 /**
  * Created by brandt on 01/03/15.
@@ -18,7 +19,7 @@ public class PongBall extends View {
     private Context context;
     private CollisionDetector collisionDetector;
 
-    private final int BALL_SIZE = 50;
+    private final int BALL_SIZE_DP = 50;
     private final int BALL_HORIZONTAL_START_POS = 200;
     private final int BALL_VERTICAL_START_POS = 200;
     private final int BALL_INITIAL_VELOCITY = 10;
@@ -50,7 +51,7 @@ public class PongBall extends View {
         isInitialized = true;
         this.collisionDetector = collisionDetector;
         setBackgroundColor(Color.WHITE);
-        setLayoutParams(new LinearLayout.LayoutParams(BALL_SIZE, BALL_SIZE));
+        setLayoutParams(new LinearLayout.LayoutParams((int) Common.toPixels(context, BALL_SIZE_DP), (int) Common.toPixels(context, BALL_SIZE_DP)));
 
         /* Don't use setPosition here, as it will trigger notifyPositionChanged.
            We're not interested in this trigger since the game has not started
@@ -125,11 +126,11 @@ public class PongBall extends View {
     }
 
     public float getRightEdge() {
-        return getX() + BALL_SIZE;
+        return getX() + (int) Common.toPixels(context, BALL_SIZE_DP);
     }
 
     public float getBottomEdge() {
-        return getY() + BALL_SIZE;
+        return getY() + (int) Common.toPixels(context, BALL_SIZE_DP);
     }
 
     public float getVelocityX() {
@@ -146,5 +147,17 @@ public class PongBall extends View {
 
     public void setVelocityY(float velocityY) {
         this.velocityY = velocityY;
+    }
+
+    public Direction getHorizontalDirection() {
+        return velocityX > 0 ? Direction.RIGHT : Direction.LEFT;
+    }
+
+    public Direction getVerticalDirection() {
+        return velocityY > 0 ? Direction.DOWN : Direction.UP;
+    }
+
+    public enum Direction {
+        LEFT, RIGHT, UP, DOWN;
     }
 }
