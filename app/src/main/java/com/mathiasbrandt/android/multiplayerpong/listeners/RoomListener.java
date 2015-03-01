@@ -12,7 +12,9 @@ import com.google.android.gms.games.multiplayer.realtime.RealTimeMessageReceived
 import com.google.android.gms.games.multiplayer.realtime.Room;
 import com.google.android.gms.games.multiplayer.realtime.RoomStatusUpdateListener;
 import com.google.android.gms.games.multiplayer.realtime.RoomUpdateListener;
+import com.google.gson.Gson;
 import com.mathiasbrandt.android.multiplayerpong.MainActivity;
+import com.mathiasbrandt.android.multiplayerpong.models.GameState;
 
 import java.util.List;
 
@@ -42,8 +44,8 @@ public class RoomListener
     public void onRealTimeMessageReceived(RealTimeMessage realTimeMessage) {
         Log.d(TAG, "onRealTimeMessageReceived");
 
-        String message = new String(realTimeMessage.getMessageData());
-        Log.d(TAG, "Message received: " + message);
+        String json = new String(realTimeMessage.getMessageData());
+        context.receiveGameState(json);
     }
 
     /**

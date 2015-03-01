@@ -25,8 +25,8 @@ public class PongBall extends View {
 
     private static Boolean isInitialized = false;
 
-    private int velocityX;
-    private int velocityY;
+    private float velocityX;
+    private float velocityY;
 
     private PongBall(Context context) {
         super(context);
@@ -51,7 +51,14 @@ public class PongBall extends View {
         this.collisionDetector = collisionDetector;
         setBackgroundColor(Color.WHITE);
         setLayoutParams(new LinearLayout.LayoutParams(BALL_SIZE, BALL_SIZE));
-        setPosition(BALL_HORIZONTAL_START_POS, BALL_VERTICAL_START_POS);
+
+        /* Don't use setPosition here, as it will trigger notifyPositionChanged.
+           We're not interested in this trigger since the game has not started
+           and we're still building stuff */
+        //setPosition(BALL_HORIZONTAL_START_POS, BALL_VERTICAL_START_POS);
+        setX(BALL_HORIZONTAL_START_POS);
+        setY(BALL_VERTICAL_START_POS);
+
         velocityX = BALL_INITIAL_VELOCITY;
         velocityY = BALL_INITIAL_VELOCITY;
         // TODO: remove this
@@ -80,6 +87,16 @@ public class PongBall extends View {
     public void hide() {
         setVisibility(GONE);
     }
+
+    /*public void start() {
+        velocityY = BALL_INITIAL_VELOCITY;
+        velocityX = BALL_INITIAL_VELOCITY;
+    }*/
+
+    /*public void stop() {
+        velocityY = 0;
+        velocityX = 0;
+    }*/
 
     public void show() {
         setVisibility(VISIBLE);
@@ -113,5 +130,21 @@ public class PongBall extends View {
 
     public float getBottomEdge() {
         return getY() + BALL_SIZE;
+    }
+
+    public float getVelocityX() {
+        return velocityX;
+    }
+
+    public void setVelocityX(float velocityX) {
+        this.velocityX = velocityX;
+    }
+
+    public float getVelocityY() {
+        return velocityY;
+    }
+
+    public void setVelocityY(float velocityY) {
+        this.velocityY = velocityY;
     }
 }

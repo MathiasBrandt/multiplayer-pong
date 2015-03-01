@@ -72,7 +72,7 @@ public class MainMenuFragment
         mListener = null;
     }
 
-    public void setPlayer(Player player) {
+    public void setPlayerInfo(Player player) {
         // download player icon
         if(player.hasIconImage()) {
             Uri iconUri = player.getIconImageUri();

@@ -18,10 +18,13 @@ import com.google.android.gms.games.GamesActivityResultCodes;
 import com.google.android.gms.games.Player;
 import com.google.android.gms.games.multiplayer.Invitation;
 import com.google.android.gms.games.multiplayer.Multiplayer;
+import com.google.android.gms.games.multiplayer.Participant;
 import com.google.android.gms.games.multiplayer.realtime.Room;
 import com.google.android.gms.games.multiplayer.realtime.RoomConfig;
 import com.google.example.games.basegameutils.BaseGameUtils;
+import com.google.gson.Gson;
 import com.mathiasbrandt.android.multiplayerpong.listeners.RoomListener;
+import com.mathiasbrandt.android.multiplayerpong.models.GameState;
 
 import java.util.ArrayList;
 
@@ -45,6 +48,8 @@ public class MainActivity
 
     public static final String PARCELABLE_ROOM = "room";
     public static final String PARCELABLE_PLAYER = "player";
+    public static final String PARCELABLE_OPPONENT = "opponent";
+    public static final String PARCELABLE_IS_HOST = "host";
 
     // fragments
     private MainMenuFragment mMainMenuFragment;
@@ -59,6 +64,10 @@ public class MainActivity
     private RoomListener roomListener;
     private Room room;
     private Invitation storedInvitation;
+
+    private Player player;
+    private Participant opponent;
+    private Boolean isHost = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,8 +121,8 @@ public class MainActivity
         Log.d(TAG, "Connected to Google Play Games");
 
         // set player info in main menu fragment
-        Player player = Games.Players.getCurrentPlayer(googleApiClient);
-        mMainMenuFragment.setPlayer(player);
+        player = Games.Players.getCurrentPlayer(googleApiClient);
+        mMainMenuFragment.setPlayerInfo(player);
 
         // hide sign-in button
         SignInButton signInButton = (SignInButton) findViewById(R.id.btn_sign_in);
@@ -163,7 +172,7 @@ public class MainActivity
         if(BaseGameUtils.resolveConnectionFailure(this,
                                                 googleApiClient,
                                                 connectionResult,
-                RC_SIGN_IN,
+                                                RC_SIGN_IN,
                                                 getString(R.string.sign_in_fallback_error))) {
             isResolvingConnectionFailure = false;
         }
@@ -196,8 +205,9 @@ public class MainActivity
                     return;
                 }
 
-                RoomConfig roomConfig = buildRoom(inviteeList);
+                isHost = true;
 
+                RoomConfig roomConfig = buildRoom(inviteeList);
                 Games.RealTimeMultiplayer.create(googleApiClient, roomConfig);
 
                 // prevent screen from sleeping during handshake
@@ -215,7 +225,18 @@ public class MainActivity
 
                 Bundle arguments = new Bundle();
                 arguments.putParcelable(PARCELABLE_ROOM, room);
-                arguments.putParcelable(PARCELABLE_PLAYER, Games.Players.getCurrentPlayer(googleApiClient));
+                arguments.putParcelable(PARCELABLE_PLAYER, player);
+                arguments.putBoolean(PARCELABLE_IS_HOST, isHost);
+
+                // get the opponent and set name in gui
+                for(Participant participant : room.getParticipants()) {
+                    if(!participant.getPlayer().getPlayerId().equals(player.getPlayerId())) {
+                        opponent = participant;
+                        break;
+                    }
+                }
+                arguments.putParcelable(PARCELABLE_OPPONENT, opponent);
+
                 mGameFragment.setArguments(arguments);
                 switchToFragment(mGameFragment);
             } else if(resultCode == RESULT_CANCELED) {
@@ -266,6 +287,18 @@ public class MainActivity
 
     public void setRoom(Room room) {
         this.room = room;
+    }
+
+    @Override
+    public void sendGameState(String gameState) {
+        byte[] gameStateBytes = gameState.getBytes();
+        Games.RealTimeMultiplayer.sendReliableMessage(googleApiClient, null, gameStateBytes, room.getRoomId(), opponent.getParticipantId());
+    }
+
+    public void receiveGameState(String json) {
+        Gson gson = new Gson();
+        GameState gameState = gson.fromJson(json, GameState.class);
+        mGameFragment.receiveGameState(gameState);
     }
 
     /**
@@ -396,19 +429,4 @@ public class MainActivity
             Toast.makeText(this, R.string.already_signed_out, Toast.LENGTH_SHORT).show();
         }
     }
-
-    /*
-        public void tempButtonClicked() {
-        Player player = Games.Players.getCurrentPlayer(googleApiClient);
-        String msg = "why hello there!";
-        byte[] message = msg.getBytes();
-
-        for(Participant p : room.getParticipants()) {
-            if(p.getParticipantId() != player.getPlayerId()) {
-                Games.RealTimeMultiplayer.sendReliableMessage(googleApiClient, null, message, room.getRoomId(), p.getParticipantId());
-            }
-        }
-    }
-
-     */
 }

@@ -15,6 +15,7 @@ import android.widget.TextView;
 import com.google.android.gms.games.Player;
 import com.google.android.gms.games.multiplayer.Participant;
 import com.google.android.gms.games.multiplayer.realtime.Room;
+import com.mathiasbrandt.android.multiplayerpong.models.GameState;
 import com.mathiasbrandt.android.multiplayerpong.models.PongBall;
 import com.mathiasbrandt.android.multiplayerpong.models.PongBat;
 import com.mathiasbrandt.android.multiplayerpong.tasks.GameLoopAsyncTask;
@@ -29,12 +30,14 @@ public class GameFragment extends Fragment implements View.OnClickListener, Coll
     private Room room;
     private Player player;
     private Participant opponent;
+    private Boolean isHost;
     private TextView playerScore;
     private TextView opponentScore;
     private PongBall pongBall;
     private PongBat pongBat;
     private CollisionDetector collisionDetector;
     private GameLoopAsyncTask gameLoop;
+    private FrameLayout bounds;
 
     public GameFragment() {
         // Required empty public constructor
@@ -48,18 +51,13 @@ public class GameFragment extends Fragment implements View.OnClickListener, Coll
         Bundle arguments = getArguments();
         this.room = arguments.getParcelable(MainActivity.PARCELABLE_ROOM);
         this.player = arguments.getParcelable(MainActivity.PARCELABLE_PLAYER);
-
-        // get the opponent and set name in gui
-        for(Participant participant : room.getParticipants()) {
-            if(!participant.getPlayer().getPlayerId().equals(player.getPlayerId())) {
-                this.opponent = participant;
-                break;
-            }
-        }
-
+        this.opponent = arguments.getParcelable(MainActivity.PARCELABLE_OPPONENT);
+        this.isHost = arguments.getBoolean(MainActivity.PARCELABLE_IS_HOST);
         setPlayerNames(v);
 
-        collisionDetector = new CollisionDetector(getActivity(), this, (FrameLayout) v.findViewById(R.id.game_container));
+        this.bounds = (FrameLayout) v.findViewById(R.id.game_container);
+
+        collisionDetector = new CollisionDetector(getActivity(), this, bounds);
         PongBall.getInstance(getActivity()).initialize(collisionDetector);
         PongBat.getInstance(getActivity()).initialize();
 
@@ -122,10 +120,31 @@ public class GameFragment extends Fragment implements View.OnClickListener, Coll
     private void startGame() {
         gameLoop = new GameLoopAsyncTask();
         gameLoop.execute();
+        setMyTurn(isHost);
     }
 
     private void stopGame() {
         gameLoop.cancel(true);
+    }
+
+    public void receiveGameState(GameState gameState) {
+        //pongBall.setX(gameState.getX());
+        pongBall.setX(bounds.getRight());
+        pongBall.setY(gameState.getY());
+        pongBall.setVelocityX(gameState.getVelocityX());
+        pongBall.setVelocityY(gameState.getVelocityY());
+
+        setMyTurn(true);
+    }
+
+    private void setMyTurn(Boolean myTurn) {
+        if(myTurn) {
+            pongBall.show();
+        } else {
+            pongBall.hide();
+        }
+
+        gameLoop.setMyTurn(myTurn);
     }
 
     @Override
@@ -140,7 +159,16 @@ public class GameFragment extends Fragment implements View.OnClickListener, Coll
 
     @Override
     public void onScreenRightCollision() {
+        setMyTurn(false);
+
+        // flip the direction of the ball, so the opponent will be attacked
         pongBall.flipHorizontalVelocity();
+
+        // serialize game state before stopping the ball, otherwise velocity will be 0
+        String gameState = GameState.serialize(getActivity());
+
+        // send the game state to the opponent
+        mListener.sendGameState(gameState);
     }
 
     @Override
@@ -167,6 +195,6 @@ public class GameFragment extends Fragment implements View.OnClickListener, Coll
      * activity.
      */
     public interface GameFragmentListener {
-
+        public void sendGameState(String gameState);
     }
 }

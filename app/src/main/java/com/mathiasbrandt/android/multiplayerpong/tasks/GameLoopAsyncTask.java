@@ -13,6 +13,7 @@ public class GameLoopAsyncTask extends AsyncTask<Void, Void, Void> {
     private final String TAG = "GameLoop";
     private static final int SLEEP_PERIOD = 10;
     private Context context;
+    private Boolean myTurn = false;
 
     public GameLoopAsyncTask() {
     }
@@ -34,6 +35,12 @@ public class GameLoopAsyncTask extends AsyncTask<Void, Void, Void> {
 
     @Override
     protected void onProgressUpdate(Void... values) {
-        PongBall.getInstance(context).move();
+        if(myTurn) {
+            PongBall.getInstance(context).move();
+        }
+    }
+
+    public void setMyTurn(Boolean myTurn) {
+        this.myTurn = myTurn;
     }
 }
