@@ -8,11 +8,16 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.google.android.gms.games.Player;
 import com.google.android.gms.games.multiplayer.Participant;
 import com.google.android.gms.games.multiplayer.realtime.Room;
+import com.mathiasbrandt.android.multiplayerpong.models.PongBall;
+import com.mathiasbrandt.android.multiplayerpong.models.PongBat;
+import com.mathiasbrandt.android.multiplayerpong.tasks.GameLoopAsyncTask;
 
 
 /**
@@ -26,6 +31,10 @@ public class GameFragment extends Fragment implements View.OnClickListener {
     private Participant opponent;
     private TextView playerScore;
     private TextView opponentScore;
+    private PongBall pongBall;
+    private PongBat pongBat;
+    private CollisionDetector collisionDetector;
+    private GameLoopAsyncTask gameLoop;
 
     public GameFragment() {
         // Required empty public constructor
@@ -50,6 +59,14 @@ public class GameFragment extends Fragment implements View.OnClickListener {
 
         setPlayerNames(v);
 
+        collisionDetector = new CollisionDetector(getActivity(), (FrameLayout) v.findViewById(R.id.game_container));
+        PongBall.getInstance(getActivity()).initialize(collisionDetector);
+        PongBat.getInstance(getActivity()).initialize();
+
+        addGameElements(v);
+
+        startGame();
+
         return v;
     }
 
@@ -70,6 +87,18 @@ public class GameFragment extends Fragment implements View.OnClickListener {
     }
 
     /**
+     * Called when the Fragment is no longer resumed.  This is generally
+     * tied to {@link android.app.Activity#onPause() Activity.onPause} of the containing
+     * Activity's lifecycle.
+     */
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        stopGame();
+    }
+
+    /**
      * Sets the player's and opponent's names in the gui
      */
     private void setPlayerNames(View context) {
@@ -78,6 +107,25 @@ public class GameFragment extends Fragment implements View.OnClickListener {
 
         TextView tvOpponentName = (TextView) context.findViewById(R.id.tv_opponent_name);
         tvOpponentName.setText(opponent.getDisplayName());
+    }
+
+    private void addGameElements(View context) {
+        pongBall = PongBall.getInstance(getActivity());
+        pongBat = PongBat.getInstance(getActivity());
+
+        FrameLayout gameContainer = (FrameLayout) context.findViewById(R.id.game_container);
+        gameContainer.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+        gameContainer.addView(pongBall);
+        gameContainer.addView(pongBat);
+    }
+
+    private void startGame() {
+        gameLoop = new GameLoopAsyncTask();
+        gameLoop.execute();
+    }
+
+    private void stopGame() {
+        gameLoop.cancel(true);
     }
 
     /**

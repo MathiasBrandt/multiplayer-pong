@@ -83,7 +83,7 @@
         </RelativeLayout>
     </RelativeLayout>
     
-    <RelativeLayout
+    <FrameLayout
         android:id="@+id/game_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -91,5 +91,5 @@
         android:background="@android:color/black"
         android:layout_marginTop="5dp">
 
-        </RelativeLayout>
+        </FrameLayout>
 </RelativeLayout>
