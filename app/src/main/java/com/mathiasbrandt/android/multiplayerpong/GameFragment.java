@@ -112,7 +112,6 @@ public class GameFragment extends Fragment implements View.OnClickListener, Coll
         pongBat = PongBat.getInstance(getActivity());
 
         FrameLayout gameContainer = (FrameLayout) context.findViewById(R.id.game_container);
-        gameContainer.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
         gameContainer.addView(pongBall);
         gameContainer.addView(pongBat);
     }

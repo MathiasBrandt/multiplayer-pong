@@ -21,7 +21,7 @@ public class PongBall extends View {
     private final int BALL_SIZE = 50;
     private final int BALL_HORIZONTAL_START_POS = 200;
     private final int BALL_VERTICAL_START_POS = 200;
-    private final int BALL_INITIAL_VELOCITY = 2;
+    private final int BALL_INITIAL_VELOCITY = 10;
 
     private static Boolean isInitialized = false;
 
