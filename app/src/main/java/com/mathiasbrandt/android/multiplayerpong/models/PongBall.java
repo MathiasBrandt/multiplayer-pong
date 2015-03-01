@@ -49,13 +49,21 @@ public class PongBall extends View {
         velocityY = BALL_INITIAL_VELOCITY;
     }
 
-    public void setPosition(float x, float y) {
+    /**
+     * Updates the position of the ball to the specified coordinates.
+     * @param x the new x-coordinate of the ball
+     * @param y the new y-coordinate of the ball
+     */
+    private void setPosition(float x, float y) {
         setX(x);
         setY(y);
 
         notifyPositionChanged();
     }
 
+    /**
+     * Moves the ball and updates its position according to the current velocity.
+     */
     public void move() {
         setPosition(getX() + velocityX, getY() + velocityY);
     }
