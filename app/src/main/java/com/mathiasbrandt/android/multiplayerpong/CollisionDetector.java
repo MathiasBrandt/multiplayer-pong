@@ -40,25 +40,20 @@ public class CollisionDetector {
         //Log.d(TAG, String.format("bl: %f, br: %f, bt: %f, bb: %f", ballLeft, ballRight, ballTop, ballBottom));
         //Log.d(TAG, String.format("left: %d, right: %d, top: %d, bottom: %d", bounds.getLeft(), bounds.getRight(), bounds.getTop(), bounds.getBottom()));
 
-        if(ballLeft <= bounds.getLeft()) {
+        if(ballLeft <= bounds.getLeft() && ball.getVelocityX() < 0) {
             // left
-            // player lost
             Log.d(TAG, "Hit left");
             listener.onScreenLeftCollision();
-        } else if(ballTop <= 0) {
+        } else if(ballTop <= 0 && ball.getVelocityY() < 0) {
             // top
-            // change vertical velocity
             Log.d(TAG, "Hit top");
             listener.onScreenTopCollision();
-        } else if(ballRight >= bounds.getRight()) {
+        } else if(ballLeft > bounds.getRight() && ball.getVelocityX() > 0) {
             // right
-            // send game state to opponent
             Log.d(TAG, "Hit right");
             listener.onScreenRightCollision();
-            ball.flipHorizontalVelocity();
-        } else if(ballBottom >= bounds.getHeight()) {
+        } else if(ballBottom >= bounds.getHeight() && ball.getVelocityY() > 0) {
             // bottom
-            // change vertical velocity
             Log.d(TAG, "Hit bottom");
             listener.onScreenBottomCollision();
         }
