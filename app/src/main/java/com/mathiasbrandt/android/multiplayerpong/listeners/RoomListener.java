@@ -1,4 +1,4 @@
-package com.mathiasbrandt.android.multiplayerpong;
+package com.mathiasbrandt.android.multiplayerpong.listeners;
 
 import android.content.Intent;
 import android.util.Log;
@@ -12,6 +12,7 @@ import com.google.android.gms.games.multiplayer.realtime.RealTimeMessageReceived
 import com.google.android.gms.games.multiplayer.realtime.Room;
 import com.google.android.gms.games.multiplayer.realtime.RoomStatusUpdateListener;
 import com.google.android.gms.games.multiplayer.realtime.RoomUpdateListener;
+import com.mathiasbrandt.android.multiplayerpong.MainActivity;
 
 import java.util.List;
 

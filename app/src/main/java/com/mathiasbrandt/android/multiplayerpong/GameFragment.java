@@ -23,7 +23,7 @@ import com.mathiasbrandt.android.multiplayerpong.tasks.GameLoopAsyncTask;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class GameFragment extends Fragment implements View.OnClickListener {
+public class GameFragment extends Fragment implements View.OnClickListener, CollisionDetector.CollisionListener {
     private final String TAG = "GameFragment";
     private GameFragmentListener mListener;
     private Room room;
@@ -59,7 +59,7 @@ public class GameFragment extends Fragment implements View.OnClickListener {
 
         setPlayerNames(v);
 
-        collisionDetector = new CollisionDetector(getActivity(), (FrameLayout) v.findViewById(R.id.game_container));
+        collisionDetector = new CollisionDetector(getActivity(), this, (FrameLayout) v.findViewById(R.id.game_container));
         PongBall.getInstance(getActivity()).initialize(collisionDetector);
         PongBat.getInstance(getActivity()).initialize();
 
@@ -126,6 +126,26 @@ public class GameFragment extends Fragment implements View.OnClickListener {
 
     private void stopGame() {
         gameLoop.cancel(true);
+    }
+
+    @Override
+    public void onScreenLeftCollision() {
+        pongBall.flipHorizontalVelocity();
+    }
+
+    @Override
+    public void onScreenTopCollision() {
+
+    }
+
+    @Override
+    public void onScreenRightCollision() {
+        pongBall.flipHorizontalVelocity();
+    }
+
+    @Override
+    public void onScreenBottomCollision() {
+
     }
 
     /**

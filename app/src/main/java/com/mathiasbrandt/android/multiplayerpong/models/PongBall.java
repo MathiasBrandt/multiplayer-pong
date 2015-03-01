@@ -1,6 +1,5 @@
 package com.mathiasbrandt.android.multiplayerpong.models;
 
-import android.app.ActionBar;
 import android.content.Context;
 import android.graphics.Color;
 import android.util.Log;
@@ -17,7 +16,7 @@ public class PongBall extends View {
 
     private static PongBall instance;
     private Context context;
-    private CollisionDetector collisionListener;
+    private CollisionDetector collisionDetector;
 
     private final int BALL_SIZE = 50;
     private final int BALL_HORIZONTAL_START_POS = 200;
@@ -49,7 +48,7 @@ public class PongBall extends View {
         }
 
         isInitialized = true;
-        this.collisionListener = collisionDetector;
+        this.collisionDetector = collisionDetector;
         setBackgroundColor(Color.WHITE);
         setLayoutParams(new LinearLayout.LayoutParams(BALL_SIZE, BALL_SIZE));
         setPosition(BALL_HORIZONTAL_START_POS, BALL_VERTICAL_START_POS);
@@ -97,7 +96,7 @@ public class PongBall extends View {
     }
 
     private void notifyPositionChanged() {
-        collisionListener.positionChanged();
+        collisionDetector.positionChanged();
     }
 
     public float getLeftEdge() {
