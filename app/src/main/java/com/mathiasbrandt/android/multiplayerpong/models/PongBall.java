@@ -3,6 +3,7 @@ package com.mathiasbrandt.android.multiplayerpong.models;
 import android.app.ActionBar;
 import android.content.Context;
 import android.graphics.Color;
+import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 
@@ -21,32 +22,41 @@ public class PongBall extends View {
     private final int BALL_SIZE = 50;
     private final int BALL_HORIZONTAL_START_POS = 200;
     private final int BALL_VERTICAL_START_POS = 200;
-    private final int BALL_INITIAL_VELOCITY = 20;
+    private final int BALL_INITIAL_VELOCITY = 2;
+
+    private static Boolean isInitialized = false;
 
     private int velocityX;
     private int velocityY;
 
-    private PongBall(Context context, CollisionDetector collisionDetector) {
+    private PongBall(Context context) {
         super(context);
 
         this.context = context;
-        initialize();
     }
 
-    public static PongBall getInstance(Context context, CollisionDetector collisionDetector) {
+    public static PongBall getInstance(Context context) {
         if(instance == null) {
-            instance = new PongBall(context, collisionDetector);
+            instance = new PongBall(context);
         }
 
         return instance;
     }
 
-    private void initialize() {
+    public void initialize(CollisionDetector collisionDetector) {
+        if(isInitialized) {
+            throw new ExceptionInInitializerError("Error: initialize() can only be called once.");
+        }
+
+        isInitialized = true;
+        this.collisionListener = collisionDetector;
         setBackgroundColor(Color.WHITE);
         setLayoutParams(new LinearLayout.LayoutParams(BALL_SIZE, BALL_SIZE));
         setPosition(BALL_HORIZONTAL_START_POS, BALL_VERTICAL_START_POS);
         velocityX = BALL_INITIAL_VELOCITY;
         velocityY = BALL_INITIAL_VELOCITY;
+        // TODO: remove this
+        velocityY = 0;
     }
 
     /**
@@ -76,7 +86,33 @@ public class PongBall extends View {
         setVisibility(VISIBLE);
     }
 
+    public void flipHorizontalVelocity() {
+        Log.d(TAG, "Flipping horizontal velocity");
+        velocityX *= -1;
+    }
+
+    public void flipVerticalVelocity() {
+        Log.d(TAG, "Flipping vertical velocity");
+        velocityY *= -1;
+    }
+
     private void notifyPositionChanged() {
-        collisionListener.positionChanged(getX(), getY());
+        collisionListener.positionChanged();
+    }
+
+    public float getLeftEdge() {
+        return getX();
+    }
+
+    public float getTopEdge() {
+        return getY();
+    }
+
+    public float getRightEdge() {
+        return getX() + BALL_SIZE;
+    }
+
+    public float getBottomEdge() {
+        return getY() + BALL_SIZE;
     }
 }

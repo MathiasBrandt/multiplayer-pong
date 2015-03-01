@@ -6,6 +6,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.LinearLayout;
 
+import com.mathiasbrandt.android.multiplayerpong.Common;
+
 /**
  * Created by brandt on 01/03/15.
  */
@@ -16,16 +18,17 @@ public class PongBat extends View {
 
     private Context context;
 
-    private final int BAT_HEIGHT = 75;
-    private final int BAT_WIDTH = 300;
+    private final int BAT_HEIGHT_DP = 100;
+    private final int BAT_WIDTH_DP = 25;
     private final int BAT_HORIZONTAL_START_POS = 100;
     private final int BAT_VERTICAL_START_POS = 100;
+
+    private static Boolean isInitialized = false;
 
     private PongBat(Context context) {
         super(context);
 
         this.context = context;
-        initialize();
     }
 
     public static PongBat getInstance(Context context) {
@@ -36,9 +39,14 @@ public class PongBat extends View {
         return instance;
     }
 
-    private void initialize() {
+    public void initialize() {
+        if(isInitialized) {
+            throw new ExceptionInInitializerError("Error: initialize() can only be called once.");
+        }
+
+        isInitialized = true;
         setBackgroundColor(Color.WHITE);
-        setLayoutParams(new LinearLayout.LayoutParams(BAT_WIDTH, BAT_HEIGHT));
+        setLayoutParams(new LinearLayout.LayoutParams((int) Common.toPixels(context, BAT_WIDTH_DP), (int) Common.toPixels(context, BAT_HEIGHT_DP)));
         setPosition(BAT_HORIZONTAL_START_POS, BAT_VERTICAL_START_POS);
         setTouchListener();
     }
