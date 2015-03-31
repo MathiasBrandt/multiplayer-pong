@@ -3,6 +3,7 @@ package com.mathiasbrandt.android.multiplayerpong;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -106,6 +107,9 @@ public class MainActivity
     @Override
     protected void onStart() {
         super.onStart();
+        Log.d(TAG, "onStart(): performing version check.");
+        
+
         Log.d(TAG, "onStart(): Checking for Google Play Services availability.");
 
         int statusCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
@@ -116,7 +120,12 @@ public class MainActivity
 
             Log.d(TAG, "Error: Google Play services APK missing, out of date, or disabled");
 
-            GooglePlayServicesUtil.getErrorDialog(statusCode, this, RC_GOOGLE_PLAY_SERVICES_ERROR);
+            GooglePlayServicesUtil.getErrorDialog(statusCode, this, RC_GOOGLE_PLAY_SERVICES_ERROR, new DialogInterface.OnCancelListener() {
+                @Override
+                public void onCancel(DialogInterface dialog) {
+                    // TODO: disable buttons -- this obviously also requires some way to enable them again ...
+                }
+            }).show();
 
             return;
         }
@@ -128,7 +137,15 @@ public class MainActivity
     @Override
     protected void onStop() {
         super.onStop();
+
         Log.d(TAG, "onStop(): Disconnecting from Google Play Games.");
+
+        // leave the room
+        if(room != null) {
+            leaveRoom();
+        }
+
+        // disconnect from Google Play games
         if(isSignedIn()) {
             googleApiClient.disconnect();
         }
@@ -232,11 +249,12 @@ public class MainActivity
 
                 isHost = true;
 
+                // prevent screen from sleeping during handshake
+                preventScreenSleep(true);
+
                 RoomConfig roomConfig = buildRoom(inviteeList);
                 Games.RealTimeMultiplayer.create(googleApiClient, roomConfig);
 
-                // prevent screen from sleeping during handshake
-                preventScreenSleep(true);
             } else {
                 // user canceled
                 return;
@@ -270,14 +288,12 @@ public class MainActivity
                 // however, for now, just leave the room
                 Log.d(TAG, "Player dismissed the waiting room (back button)");
 
-                Games.RealTimeMultiplayer.leave(googleApiClient, roomListener, room.getRoomId());
-                preventScreenSleep(false);
+                leaveRoom();
             } else if(resultCode == GamesActivityResultCodes.RESULT_LEFT_ROOM) {
                 // player selected the leave room option
                 Log.d(TAG, "Player left the room");
 
-                Games.RealTimeMultiplayer.leave(googleApiClient, roomListener, room.getRoomId());
-                preventScreenSleep(false);
+                leaveRoom();
             }
         }
 
@@ -337,6 +353,11 @@ public class MainActivity
 
     public void switchToMainMenu() {
         switchToFragment(mMainMenuFragment);
+    }
+
+    public void leaveRoom() {
+        Games.RealTimeMultiplayer.leave(googleApiClient, roomListener, room.getRoomId());
+        preventScreenSleep(false);
     }
 
     /**

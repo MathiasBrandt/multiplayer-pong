@@ -279,15 +279,12 @@ public class RoomListener
 
     private void leaveRoomOnError(Room room) {
         Log.d(TAG, "Leaving room on error");
-        
+
         // show error message
         context.showErrorDialog(R.string.error_opponent_left);
 
         // leave the room
-        Games.RealTimeMultiplayer.leave(context.getGoogleApiClient(), this, room.getRoomId());
-
-        // clear the flag that keeps the screen on
-        context.preventScreenSleep(false);
+        context.leaveRoom();
 
         context.switchToMainMenu();
     }
