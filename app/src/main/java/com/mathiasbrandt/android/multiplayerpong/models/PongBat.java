@@ -29,6 +29,11 @@ public class PongBat extends View {
         super(context);
 
         this.context = context;
+
+        setBackgroundColor(Color.WHITE);
+        setLayoutParams(new LinearLayout.LayoutParams((int) Common.toPixels(context, BAT_WIDTH_DP), (int) Common.toPixels(context, BAT_HEIGHT_DP)));
+        setPosition(BAT_HORIZONTAL_START_POS, BAT_VERTICAL_START_POS);
+        setTouchListener();
     }
 
     public static PongBat getInstance() {
@@ -39,17 +44,13 @@ public class PongBat extends View {
         return instance;
     }
 
-    public void initialize(Context context) {
+    public static void initialize(Context context) {
         if(isInitialized) {
             throw new ExceptionInInitializerError("Error: initialize() can only be called once.");
         }
 
         isInitialized = true;
         instance = new PongBat(context);
-        setBackgroundColor(Color.WHITE);
-        setLayoutParams(new LinearLayout.LayoutParams((int) Common.toPixels(context, BAT_WIDTH_DP), (int) Common.toPixels(context, BAT_HEIGHT_DP)));
-        setPosition(BAT_HORIZONTAL_START_POS, BAT_VERTICAL_START_POS);
-        setTouchListener();
     }
 
     public void setPosition(float x, float y) {

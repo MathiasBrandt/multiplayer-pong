@@ -29,27 +29,11 @@ public class PongBall extends View {
     private float velocityX;
     private float velocityY;
 
-    private PongBall(Context context) {
+    private PongBall(Context context, CollisionDetector collisionDetector) {
         super(context);
 
         this.context = context;
-    }
 
-    public static PongBall getInstance() {
-        if(instance == null) {
-            throw new ExceptionInInitializerError("Error: PongBall must be initialized before calling getInstance.");
-        }
-
-        return instance;
-    }
-
-    public void initialize(Context context, CollisionDetector collisionDetector) {
-        if(isInitialized) {
-            throw new ExceptionInInitializerError("Error: initialize() can only be called once.");
-        }
-
-        isInitialized = true;
-        instance = new PongBall(context);
         this.collisionDetector = collisionDetector;
         setBackgroundColor(Color.WHITE);
         setLayoutParams(new LinearLayout.LayoutParams((int) Common.toPixels(context, BALL_SIZE_DP), (int) Common.toPixels(context, BALL_SIZE_DP)));
@@ -65,6 +49,23 @@ public class PongBall extends View {
         velocityY = BALL_INITIAL_VELOCITY;
         // TODO: remove this
         velocityY = 0;
+    }
+
+    public static PongBall getInstance() {
+        if(instance == null) {
+            throw new ExceptionInInitializerError("Error: PongBall must be initialized before calling getInstance.");
+        }
+
+        return instance;
+    }
+
+    public static void initialize(Context context, CollisionDetector collisionDetector) {
+        if(isInitialized) {
+            throw new ExceptionInInitializerError("Error: initialize() can only be called once.");
+        }
+
+        isInitialized = true;
+        instance = new PongBall(context, collisionDetector);
     }
 
     /**

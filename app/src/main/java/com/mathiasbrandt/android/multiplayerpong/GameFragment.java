@@ -58,8 +58,8 @@ public class GameFragment extends Fragment implements View.OnClickListener, Coll
         this.bounds = (FrameLayout) v.findViewById(R.id.game_container);
 
         collisionDetector = new CollisionDetector(getActivity(), this, bounds);
-        PongBall.getInstance().initialize(getActivity(), collisionDetector);
-        PongBat.getInstance().initialize(getActivity());
+        PongBall.initialize(getActivity(), collisionDetector);
+        PongBat.initialize(getActivity());
 
         addGameElements(v);
 
