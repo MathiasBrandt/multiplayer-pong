@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.games.Games;
@@ -45,6 +46,7 @@ public class MainActivity
     public static final int RC_SIGN_IN = 7001;
     public static final int RC_SELECT_PLAYERS = 7002;
     public static final int RC_WAITING_ROOM = 7003;
+    public static final int RC_GOOGLE_PLAY_SERVICES_ERROR = 7004;
 
     public static final String PARCELABLE_ROOM = "room";
     public static final String PARCELABLE_PLAYER = "player";
@@ -103,6 +105,21 @@ public class MainActivity
     @Override
     protected void onStart() {
         super.onStart();
+        Log.d(TAG, "onStart(): Checking for Google Play Services availability.");
+
+        int statusCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+        if(statusCode == ConnectionResult.SERVICE_MISSING ||
+                statusCode == ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED ||
+                statusCode == ConnectionResult.SERVICE_DISABLED ||
+                statusCode == ConnectionResult.SERVICE_INVALID) {
+
+            Log.d(TAG, String.format("Connection to Google Play Games failed: Google Play services APK missing, out of date, or disabled (%s)", connectionResult.toString()));
+
+            GooglePlayServicesUtil.getErrorDialog(statusCode, this, RC_GOOGLE_PLAY_SERVICES_ERROR);
+
+            return;
+        }
+
         Log.d(TAG, "onStart(): Connecting to Google Play Games.");
         googleApiClient.connect();
     }
@@ -163,18 +180,25 @@ public class MainActivity
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
-        Log.d(TAG, String.format("Connection to Google Play Games failed (%s): %s", connectionResult.getErrorCode(), connectionResult.toString()));
+        if(isResolvingConnectionFailure) {
+            return;
+        }
 
-        if(isResolvingConnectionFailure) { return; }
+        int errorCode = connectionResult.getErrorCode();
+        String reason = connectionResult.toString();
 
-        // start sign-in flow
-        isResolvingConnectionFailure = true;
-        if(BaseGameUtils.resolveConnectionFailure(this,
-                                                googleApiClient,
-                                                connectionResult,
-                                                RC_SIGN_IN,
-                                                getString(R.string.sign_in_fallback_error))) {
-            isResolvingConnectionFailure = false;
+        if(errorCode == ConnectionResult.SIGN_IN_REQUIRED) {
+            Log.d(TAG, String.format("Connection to Google Play Games failed: Sign-in required (%s)", connectionResult.toString()));
+
+            // start sign-in flow
+            isResolvingConnectionFailure = true;
+            if (BaseGameUtils.resolveConnectionFailure(this,
+                    googleApiClient,
+                    connectionResult,
+                    RC_SIGN_IN,
+                    getString(R.string.sign_in_fallback_error))) {
+                isResolvingConnectionFailure = false;
+            }
         }
     }
 
