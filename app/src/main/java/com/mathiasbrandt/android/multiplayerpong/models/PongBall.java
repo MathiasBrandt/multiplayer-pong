@@ -35,20 +35,21 @@ public class PongBall extends View {
         this.context = context;
     }
 
-    public static PongBall getInstance(Context context) {
+    public static PongBall getInstance() {
         if(instance == null) {
-            instance = new PongBall(context);
+            throw new ExceptionInInitializerError("Error: PongBall must be initialized before calling getInstance.");
         }
 
         return instance;
     }
 
-    public void initialize(CollisionDetector collisionDetector) {
+    public void initialize(Context context, CollisionDetector collisionDetector) {
         if(isInitialized) {
             throw new ExceptionInInitializerError("Error: initialize() can only be called once.");
         }
 
         isInitialized = true;
+        instance = new PongBall(context);
         this.collisionDetector = collisionDetector;
         setBackgroundColor(Color.WHITE);
         setLayoutParams(new LinearLayout.LayoutParams((int) Common.toPixels(context, BALL_SIZE_DP), (int) Common.toPixels(context, BALL_SIZE_DP)));

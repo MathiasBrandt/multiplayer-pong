@@ -31,20 +31,21 @@ public class PongBat extends View {
         this.context = context;
     }
 
-    public static PongBat getInstance(Context context) {
+    public static PongBat getInstance() {
         if(instance == null) {
-            instance = new PongBat(context);
+            throw new ExceptionInInitializerError("Error: PongBall must be initialized before calling getInstance.");
         }
 
         return instance;
     }
 
-    public void initialize() {
+    public void initialize(Context context) {
         if(isInitialized) {
             throw new ExceptionInInitializerError("Error: initialize() can only be called once.");
         }
 
         isInitialized = true;
+        instance = new PongBat(context);
         setBackgroundColor(Color.WHITE);
         setLayoutParams(new LinearLayout.LayoutParams((int) Common.toPixels(context, BAT_WIDTH_DP), (int) Common.toPixels(context, BAT_HEIGHT_DP)));
         setPosition(BAT_HORIZONTAL_START_POS, BAT_VERTICAL_START_POS);

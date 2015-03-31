@@ -25,8 +25,8 @@ public class CollisionDetector {
     }
 
     public void positionChanged() {
-        PongBall ball = PongBall.getInstance(context);
-        PongBat bat = PongBat.getInstance(context);
+        PongBall ball = PongBall.getInstance();
+        PongBat bat = PongBat.getInstance();
 
         float ballLeft = ball.getLeftEdge();
         float ballTop = ball.getTopEdge();

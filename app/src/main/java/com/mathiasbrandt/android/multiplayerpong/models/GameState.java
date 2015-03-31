@@ -40,7 +40,7 @@ public class GameState {
     }
 
     public static String serialize(Context context) {
-        PongBall ball = PongBall.getInstance(context);
+        PongBall ball = PongBall.getInstance();
         GameState gameState = new GameState(ball.getX(), ball.getY(), ball.getVelocityX(), ball.getVelocityY());
 
         Gson gson = new Gson();

@@ -36,7 +36,7 @@ public class GameLoopAsyncTask extends AsyncTask<Void, Void, Void> {
     @Override
     protected void onProgressUpdate(Void... values) {
         if(myTurn) {
-            PongBall.getInstance(context).move();
+            PongBall.getInstance().move();
         }
     }
 
