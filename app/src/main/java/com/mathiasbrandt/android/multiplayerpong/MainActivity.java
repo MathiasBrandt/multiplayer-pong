@@ -1,6 +1,7 @@
 package com.mathiasbrandt.android.multiplayerpong;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
@@ -113,7 +114,7 @@ public class MainActivity
                 statusCode == ConnectionResult.SERVICE_DISABLED ||
                 statusCode == ConnectionResult.SERVICE_INVALID) {
 
-            Log.d(TAG, String.format("Connection to Google Play Games failed: Google Play services APK missing, out of date, or disabled (%s)", connectionResult.toString()));
+            Log.d(TAG, "Error: Google Play services APK missing, out of date, or disabled");
 
             GooglePlayServicesUtil.getErrorDialog(statusCode, this, RC_GOOGLE_PLAY_SERVICES_ERROR);
 
@@ -323,6 +324,19 @@ public class MainActivity
         Gson gson = new Gson();
         GameState gameState = gson.fromJson(json, GameState.class);
         mGameFragment.receiveGameState(gameState);
+    }
+
+    public void showErrorDialog(int message) {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.an_error_occurred)
+                .setMessage(message)
+                .setPositiveButton(android.R.string.ok, null)
+                .create()
+                .show();
+    }
+
+    public void switchToMainMenu() {
+        switchToFragment(mMainMenuFragment);
     }
 
     /**

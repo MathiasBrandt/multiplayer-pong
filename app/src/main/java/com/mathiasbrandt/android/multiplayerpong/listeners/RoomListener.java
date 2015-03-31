@@ -14,6 +14,7 @@ import com.google.android.gms.games.multiplayer.realtime.RoomStatusUpdateListene
 import com.google.android.gms.games.multiplayer.realtime.RoomUpdateListener;
 import com.google.gson.Gson;
 import com.mathiasbrandt.android.multiplayerpong.MainActivity;
+import com.mathiasbrandt.android.multiplayerpong.R;
 import com.mathiasbrandt.android.multiplayerpong.models.GameState;
 
 import java.util.List;
@@ -92,6 +93,8 @@ public class RoomListener
         Log.d(TAG, "onPeerDeclined");
         // a player that was previously invited has declined the invite
 
+        // TODO: what to do here? kill?
+
         context.setRoom(room);
     }
 
@@ -117,6 +120,8 @@ public class RoomListener
         Log.d(TAG, "onPeerLeft");
 
         context.setRoom(room);
+
+        leaveRoomOnError(room);
     }
 
     /**
@@ -140,13 +145,6 @@ public class RoomListener
 
         context.setRoom(room);
 
-        // leave the room
-        Games.RealTimeMultiplayer.leave(context.getGoogleApiClient(), this, room.getRoomId());
-
-        // clear the flag that keeps the screen on
-        context.preventScreenSleep(false);
-
-        // show error message and return to main screen
     }
 
     /**
@@ -171,6 +169,7 @@ public class RoomListener
         Log.d(TAG, "onPeersDisconnected");
 
         context.setRoom(room);
+
     }
 
     /**
@@ -189,6 +188,9 @@ public class RoomListener
     @Override
     public void onP2PDisconnected(String participantId) {
         Log.d(TAG, "onP2PDisconnected");
+
+        // TODO: how to handle this?
+        //leaveRoomOnError();
     }
 
     /**
@@ -244,7 +246,7 @@ public class RoomListener
     }
 
     /**
-     * Called when the client attempts to leaves the real-time room.
+     * Called when the client attempts to leave the real-time room.
      * @param statusCode
      * @param roomId
      */
@@ -275,5 +277,18 @@ public class RoomListener
         }
     }
 
+    private void leaveRoomOnError(Room room) {
+        Log.d(TAG, "Leaving room on error");
+        
+        // show error message
+        context.showErrorDialog(R.string.error_opponent_left);
 
+        // leave the room
+        Games.RealTimeMultiplayer.leave(context.getGoogleApiClient(), this, room.getRoomId());
+
+        // clear the flag that keeps the screen on
+        context.preventScreenSleep(false);
+
+        context.switchToMainMenu();
+    }
 }
