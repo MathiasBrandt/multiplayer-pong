@@ -28,6 +28,7 @@ import com.google.example.games.basegameutils.BaseGameUtils;
 import com.google.gson.Gson;
 import com.mathiasbrandt.android.multiplayerpong.listeners.RoomListener;
 import com.mathiasbrandt.android.multiplayerpong.models.GameState;
+import com.mathiasbrandt.android.multiplayerpong.tasks.VersionCheckerTask;
 
 import java.util.ArrayList;
 
@@ -73,6 +74,8 @@ public class MainActivity
     private Participant opponent;
     private Boolean isHost = false;
 
+    private AlertDialog loadingDialog;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -107,31 +110,10 @@ public class MainActivity
     @Override
     protected void onStart() {
         super.onStart();
-        Log.d(TAG, "onStart(): performing version check.");
-        
 
-        Log.d(TAG, "onStart(): Checking for Google Play Services availability.");
+        performVersionCheckAsync();
 
-        int statusCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
-        if(statusCode == ConnectionResult.SERVICE_MISSING ||
-                statusCode == ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED ||
-                statusCode == ConnectionResult.SERVICE_DISABLED ||
-                statusCode == ConnectionResult.SERVICE_INVALID) {
-
-            Log.d(TAG, "Error: Google Play services APK missing, out of date, or disabled");
-
-            GooglePlayServicesUtil.getErrorDialog(statusCode, this, RC_GOOGLE_PLAY_SERVICES_ERROR, new DialogInterface.OnCancelListener() {
-                @Override
-                public void onCancel(DialogInterface dialog) {
-                    // TODO: disable buttons -- this obviously also requires some way to enable them again ...
-                }
-            }).show();
-
-            return;
-        }
-
-        Log.d(TAG, "onStart(): Connecting to Google Play Games.");
-        googleApiClient.connect();
+        checkGooglePlayServicesAndConnect();
     }
 
     @Override
@@ -349,6 +331,52 @@ public class MainActivity
                 .setPositiveButton(android.R.string.ok, null)
                 .create()
                 .show();
+    }
+
+    public void showLoadingDialog(int title, int message) {
+        if(!loadingDialog.isShowing()) {
+            loadingDialog = new AlertDialog.Builder(this)
+                    .setTitle(title)
+                    .setMessage(title)
+                    .setCancelable(false)
+                    .create();
+
+            loadingDialog.show();
+        }
+    }
+
+    public void dismissLoadingDialog() {
+        loadingDialog.dismiss();
+    }
+
+    private void performVersionCheckAsync() {
+        Log.d(TAG, "Performing version check.");
+        new VersionCheckerTask(this).execute();
+    }
+
+    private void checkGooglePlayServicesAndConnect() {
+        Log.d(TAG, "onStart(): Checking for Google Play Services availability.");
+
+        int statusCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+
+        if(statusCode == ConnectionResult.SERVICE_MISSING ||
+                statusCode == ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED ||
+                statusCode == ConnectionResult.SERVICE_DISABLED ||
+                statusCode == ConnectionResult.SERVICE_INVALID) {
+
+            Log.d(TAG, "Error: Google Play services APK missing, out of date, or disabled");
+
+            GooglePlayServicesUtil.getErrorDialog(statusCode, this, RC_GOOGLE_PLAY_SERVICES_ERROR, new DialogInterface.OnCancelListener() {
+                @Override
+                public void onCancel(DialogInterface dialog) {
+                    // TODO: disable buttons -- this obviously also requires some way to enable them again ...
+
+                }
+            }).show();
+        } else {
+            Log.d(TAG, "Connecting to Google Play Games.");
+            googleApiClient.connect();
+        }
     }
 
     public void switchToMainMenu() {

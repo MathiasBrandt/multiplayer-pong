@@ -22,6 +22,9 @@
     <string name="initial_score">0</string>
     <string name="score_separator">-</string>
     <string name="player_name_placeholder">PLAYER NAME</string>
-    <string name="an_error_occurred">An Error Occurred</string>
+    <string name="an_error_occurred">Notice</string>
     <string name="error_opponent_left">Your opponent has left the room.</string>
+    <string name="error_app_version">Your are using an out-dated version of this application. The application might behave in unexpected ways. Please update the app before continuing.</string>
+    <string name="version_check_dialog_title">Checking App Version</string>
+    <string name="version_check_dialog_message">Please wait ...</string>
 </resources>
