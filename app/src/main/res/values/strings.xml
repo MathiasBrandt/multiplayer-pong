@@ -27,4 +27,5 @@
     <string name="error_app_version">Your are using an out-dated version of this application. The application might behave in unexpected ways. Please update the app before continuing.</string>
     <string name="version_check_dialog_title">Checking App Version</string>
     <string name="version_check_dialog_message">Please wait ...</string>
+    <string name="no_internet_connection">You are not connected to the internet</string>
 </resources>

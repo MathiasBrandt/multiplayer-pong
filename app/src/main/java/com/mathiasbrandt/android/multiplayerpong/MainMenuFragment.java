@@ -7,9 +7,11 @@ import android.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.images.ImageManager;
 import com.google.android.gms.games.Player;
 
@@ -28,6 +30,15 @@ public class MainMenuFragment
 
     private final String TAG = "MainMenuFragment";
     private MainMenuFragmentListener mListener;
+    int[] buttonIds = {
+            R.id.btn_quick_game,
+            R.id.btn_invite_players,
+            R.id.btn_view_invitations,
+            R.id.btn_achievements,
+            R.id.btn_leaderboards,
+            R.id.btn_sign_in,
+            R.id.btn_sign_out
+    };
 
     public MainMenuFragment() {
         // Required empty public constructor
@@ -39,16 +50,6 @@ public class MainMenuFragment
         View v = inflater.inflate(R.layout.fragment_main_menu, container, false);
 
         // register callbacks for buttons
-        int[] buttonIds = {
-                R.id.btn_quick_game,
-                R.id.btn_invite_players,
-                R.id.btn_view_invitations,
-                R.id.btn_achievements,
-                R.id.btn_leaderboards,
-                R.id.btn_sign_in,
-                R.id.btn_sign_out
-        };
-        
         for(int buttonId : buttonIds) {
             v.findViewById(buttonId).setOnClickListener(this);
         }
@@ -118,6 +119,20 @@ public class MainMenuFragment
                 mListener.btnSignOutClicked();
                 break;
         }
+    }
+
+    public void modifyButtonStates(boolean shouldEnable) {
+        for(int buttonId : buttonIds) {
+            getActivity().findViewById(buttonId).setEnabled(shouldEnable);
+        }
+    }
+
+    public void modifySignInOutButtonVisibility(boolean showSignIn) {
+        SignInButton signInButton = (SignInButton) getActivity().findViewById(R.id.btn_sign_in);
+        signInButton.setVisibility(showSignIn ? View.VISIBLE : View.GONE);
+
+        Button signOutButton = (Button) getActivity().findViewById(R.id.btn_sign_out);
+        signOutButton.setVisibility(!showSignIn ? View.VISIBLE : View.GONE);
     }
 
     /**

@@ -3,8 +3,11 @@ package com.mathiasbrandt.android.multiplayerpong;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -111,9 +114,13 @@ public class MainActivity
     protected void onStart() {
         super.onStart();
 
-        performVersionCheckAsync();
-
-        checkGooglePlayServicesAndConnect();
+        if(isOnline()) {
+            performVersionCheckAsync();
+            checkGooglePlayServicesAndConnect();
+        } else {
+            showErrorDialog(R.string.no_internet_connection);
+            mMainMenuFragment.modifyButtonStates(false);
+        }
     }
 
     @Override
@@ -122,32 +129,20 @@ public class MainActivity
 
         Log.d(TAG, "onStop(): Disconnecting from Google Play Games.");
 
-        // leave the room
-        if(room != null) {
-            leaveRoom();
-        }
-
-        // disconnect from Google Play games
-        if(isSignedIn()) {
-            googleApiClient.disconnect();
-        }
+        disconnectFromGooglePlayServices();
     }
 
     @Override
     public void onConnected(Bundle connectionHint) {
         Log.d(TAG, "Connected to Google Play Games");
 
+
         // set player info in main menu fragment
         player = Games.Players.getCurrentPlayer(googleApiClient);
         mMainMenuFragment.setPlayerInfo(player);
 
-        // hide sign-in button
-        SignInButton signInButton = (SignInButton) findViewById(R.id.btn_sign_in);
-        signInButton.setVisibility(View.GONE);
-
-        // show sign-out button
-        Button signOutButton = (Button) findViewById(R.id.btn_sign_out);
-        signOutButton.setVisibility(View.VISIBLE);
+        // hide sign-in button, show sign-out button
+        mMainMenuFragment.modifySignInOutButtonVisibility(false);
 
         // add invitation listener
         //Games.Invitations.registerInvitationListener(googleApiClient, this);
@@ -216,8 +211,7 @@ public class MainActivity
                 BaseGameUtils.showActivityResultError(this, requestCode, resultCode, R.string.sign_in_failed);
 
                 // show sign-in button
-                SignInButton signInButton = (SignInButton) findViewById(R.id.btn_sign_in);
-                signInButton.setVisibility(View.VISIBLE);
+                mMainMenuFragment.modifySignInOutButtonVisibility(true);
             }
         // returned from select opponent activity. Get opponent and create a game room.
         } else if(requestCode == RC_SELECT_PLAYERS) {
@@ -349,6 +343,13 @@ public class MainActivity
         loadingDialog.dismiss();
     }
 
+    private boolean isOnline() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        return networkInfo != null && networkInfo.isConnected();
+
+    }
+
     private void performVersionCheckAsync() {
         Log.d(TAG, "Performing version check.");
         new VersionCheckerTask(this).execute();
@@ -386,6 +387,23 @@ public class MainActivity
     public void leaveRoom() {
         Games.RealTimeMultiplayer.leave(googleApiClient, roomListener, room.getRoomId());
         preventScreenSleep(false);
+    }
+
+    private void disconnectFromGooglePlayServices() {
+        Log.d(TAG, "Disconnecting from Google Play Games.");
+
+        // leave the room
+        if(room != null) {
+            leaveRoom();
+        }
+
+        // disconnect from Google Play games
+        if(isSignedIn()) {
+            Games.signOut(googleApiClient);
+            googleApiClient.disconnect();
+        }
+
+        mMainMenuFragment.modifySignInOutButtonVisibility(true);
     }
 
     /**
@@ -500,20 +518,6 @@ public class MainActivity
      */
     @Override
     public void btnSignOutClicked() {
-        if(googleApiClient != null && googleApiClient.isConnected()) {
-            Log.d(TAG, "Disconnecting from Google Play Games.");
-            Games.signOut(googleApiClient);
-            googleApiClient.disconnect();
-
-            // show sign-in button
-            SignInButton signInButton = (SignInButton) findViewById(R.id.btn_sign_in);
-            signInButton.setVisibility(View.VISIBLE);
-
-            // hide sign-out button
-            Button signOutButton = (Button) findViewById(R.id.btn_sign_out);
-            signOutButton.setVisibility(View.GONE);
-        } else {
-            Toast.makeText(this, R.string.already_signed_out, Toast.LENGTH_SHORT).show();
-        }
+        disconnectFromGooglePlayServices();
     }
 }
