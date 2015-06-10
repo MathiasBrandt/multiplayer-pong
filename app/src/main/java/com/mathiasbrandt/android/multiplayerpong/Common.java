@@ -1,5 +1,6 @@
 package com.mathiasbrandt.android.multiplayerpong;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.util.TypedValue;
 
@@ -15,5 +16,14 @@ public class Common {
      */
     public static float toPixels(Context context, float dpValue) {
         return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dpValue, context.getResources().getDisplayMetrics());
+    }
+
+    public static void showErrorDialog(Context context, int message) {
+        new AlertDialog.Builder(context)
+                .setTitle(R.string.an_error_occurred)
+                .setMessage(message)
+                .setPositiveButton(android.R.string.ok, null)
+                .create()
+                .show();
     }
 }

@@ -13,6 +13,7 @@ import com.google.android.gms.games.multiplayer.realtime.Room;
 import com.google.android.gms.games.multiplayer.realtime.RoomStatusUpdateListener;
 import com.google.android.gms.games.multiplayer.realtime.RoomUpdateListener;
 import com.google.gson.Gson;
+import com.mathiasbrandt.android.multiplayerpong.Common;
 import com.mathiasbrandt.android.multiplayerpong.MainActivity;
 import com.mathiasbrandt.android.multiplayerpong.R;
 import com.mathiasbrandt.android.multiplayerpong.models.GameState;
@@ -46,7 +47,8 @@ public class RoomListener
         Log.d(TAG, "onRealTimeMessageReceived");
 
         String json = new String(realTimeMessage.getMessageData());
-        context.receiveGameState(json);
+
+        context.getNetworkManager().receiveGameState(json);
     }
 
     /**
@@ -281,7 +283,7 @@ public class RoomListener
         Log.d(TAG, "Leaving room on error");
 
         // show error message
-        context.showErrorDialog(R.string.error_opponent_left);
+        Common.showErrorDialog(context, R.string.error_opponent_left);
 
         // leave the room
         context.leaveRoom();

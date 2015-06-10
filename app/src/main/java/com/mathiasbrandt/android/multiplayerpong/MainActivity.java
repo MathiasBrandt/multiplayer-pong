@@ -3,21 +3,15 @@ package com.mathiasbrandt.android.multiplayerpong;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.games.Games;
 import com.google.android.gms.games.GamesActivityResultCodes;
@@ -28,10 +22,7 @@ import com.google.android.gms.games.multiplayer.Participant;
 import com.google.android.gms.games.multiplayer.realtime.Room;
 import com.google.android.gms.games.multiplayer.realtime.RoomConfig;
 import com.google.example.games.basegameutils.BaseGameUtils;
-import com.google.gson.Gson;
 import com.mathiasbrandt.android.multiplayerpong.listeners.RoomListener;
-import com.mathiasbrandt.android.multiplayerpong.models.GameState;
-import com.mathiasbrandt.android.multiplayerpong.tasks.VersionCheckerTask;
 
 import java.util.ArrayList;
 
@@ -65,6 +56,8 @@ public class MainActivity
     // client used to interact with Google APIs
     private GoogleApiClient googleApiClient;
 
+    private NetworkManager networkManager;
+
     // are we currently resolving a connection failure?
     private boolean isResolvingConnectionFailure = false;
 
@@ -91,6 +84,8 @@ public class MainActivity
                 .addScope(Games.SCOPE_GAMES)
                 .build();
 
+        networkManager = new NetworkManager(this, googleApiClient);
+
         roomListener = new RoomListener(this);
 
         // create fragments
@@ -105,21 +100,25 @@ public class MainActivity
         getFragmentManager().beginTransaction().replace(R.id.fragment_container, newFragment).commit();
     }
 
-    private boolean isSignedIn() {
-        return googleApiClient != null && googleApiClient.isConnected();
-    }
-
     @Override
     protected void onStart() {
         super.onStart();
 
-        if(isOnline()) {
-            performVersionCheckAsync();
-            checkGooglePlayServicesAndConnect();
+        if(networkManager.isDeviceOnline()) {
+            handleDeviceOnline();
         } else {
-            showErrorDialog(R.string.no_internet_connection);
-            mMainMenuFragment.modifyButtonStates(false);
+            handleDeviceOffline();
         }
+    }
+
+    private void handleDeviceOnline() {
+        networkManager.performVersionCheckAsync();
+        connectToGooglePlayServices();
+    }
+
+    private void handleDeviceOffline() {
+        Common.showErrorDialog(this, R.string.no_internet_connection);
+        mMainMenuFragment.modifyButtonStates(false);
     }
 
     @Override
@@ -305,27 +304,6 @@ public class MainActivity
         this.room = room;
     }
 
-    @Override
-    public void sendGameState(String gameState) {
-        byte[] gameStateBytes = gameState.getBytes();
-        Games.RealTimeMultiplayer.sendReliableMessage(googleApiClient, null, gameStateBytes, room.getRoomId(), opponent.getParticipantId());
-    }
-
-    public void receiveGameState(String json) {
-        Gson gson = new Gson();
-        GameState gameState = gson.fromJson(json, GameState.class);
-        mGameFragment.receiveGameState(gameState);
-    }
-
-    public void showErrorDialog(int message) {
-        new AlertDialog.Builder(this)
-                .setTitle(R.string.an_error_occurred)
-                .setMessage(message)
-                .setPositiveButton(android.R.string.ok, null)
-                .create()
-                .show();
-    }
-
     public void showLoadingDialog(int title, int message) {
         if(!loadingDialog.isShowing()) {
             loadingDialog = new AlertDialog.Builder(this)
@@ -342,22 +320,8 @@ public class MainActivity
         loadingDialog.dismiss();
     }
 
-    private boolean isOnline() {
-        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-        return networkInfo != null && networkInfo.isConnected();
-
-    }
-
-    private void performVersionCheckAsync() {
-        Log.d(TAG, "Performing version check.");
-        new VersionCheckerTask(this).execute();
-    }
-
-    private void checkGooglePlayServicesAndConnect() {
-        Log.d(TAG, "onStart(): Checking for Google Play Services availability.");
-
-        int statusCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+    private void connectToGooglePlayServices() {
+        int statusCode = networkManager.checkGooglePlayServicesAvailability();
 
         if(statusCode == ConnectionResult.SERVICE_MISSING ||
                 statusCode == ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED ||
@@ -366,17 +330,33 @@ public class MainActivity
 
             Log.d(TAG, "Error: Google Play services APK missing, out of date, or disabled");
 
-            GooglePlayServicesUtil.getErrorDialog(statusCode, this, RC_GOOGLE_PLAY_SERVICES_ERROR, new DialogInterface.OnCancelListener() {
+            GooglePlayServicesUtil.getErrorDialog(statusCode, this, MainActivity.RC_GOOGLE_PLAY_SERVICES_ERROR, new DialogInterface.OnCancelListener() {
                 @Override
                 public void onCancel(DialogInterface dialog) {
-                    // TODO: disable buttons -- this obviously also requires some way to enable them again ...
-
+                    mMainMenuFragment.modifyButtonStates(false);
                 }
             }).show();
         } else {
-            Log.d(TAG, "Connecting to Google Play Games.");
+            Log.d(TAG, "Connecting to Google Play Services.");
             googleApiClient.connect();
         }
+    }
+
+    private void disconnectFromGooglePlayServices() {
+        Log.d(TAG, "Disconnecting from Google Play Services.");
+
+        // leave the room
+        if(room != null) {
+            leaveRoom();
+        }
+
+        // disconnect from Google Play games
+        if(networkManager.isSignedIn()) {
+            Games.signOut(googleApiClient);
+            googleApiClient.disconnect();
+        }
+
+        mMainMenuFragment.modifySignInOutButtonVisibility(true);
     }
 
     public void switchToMainMenu() {
@@ -388,22 +368,11 @@ public class MainActivity
         preventScreenSleep(false);
     }
 
-    private void disconnectFromGooglePlayServices() {
-        Log.d(TAG, "Disconnecting from Google Play Games.");
-
-        // leave the room
-        if(room != null) {
-            leaveRoom();
-        }
-
-        // disconnect from Google Play games
-        if(isSignedIn()) {
-            Games.signOut(googleApiClient);
-            googleApiClient.disconnect();
-        }
-
-        mMainMenuFragment.modifySignInOutButtonVisibility(true);
+    public NetworkManager getNetworkManager() {
+        return networkManager;
     }
+
+
 
     /**
      * Callback invoked when a new invitation is received.
@@ -519,4 +488,7 @@ public class MainActivity
     public void btnSignOutClicked() {
         disconnectFromGooglePlayServices();
     }
+
+
+
 }

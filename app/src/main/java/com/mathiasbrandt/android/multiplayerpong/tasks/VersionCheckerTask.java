@@ -20,8 +20,7 @@ import org.json.JSONObject;
  */
 public class VersionCheckerTask extends AsyncTask<Void, Void, Boolean> {
     private final String TAG = "VersionCheckerTask";
-    private final String VERSION_CHECK_URL = "http://mathiasbrandt.com/apps/multiplayer-pong/version.json";
-    private final String VERSION_KEY = "app-version";
+
 
     private MainActivity context;
 
@@ -31,30 +30,7 @@ public class VersionCheckerTask extends AsyncTask<Void, Void, Boolean> {
 
     @Override
     protected Boolean doInBackground(Void... params) {
-        RequestQueue queue = Volley.newRequestQueue(context);
 
-        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, VERSION_CHECK_URL, new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                try {
-                    String newestVersion = response.getString(VERSION_KEY);
-                    String actualVersion = context.getString(R.string.app_version);
-
-                    if(!newestVersion.equals(actualVersion)) {
-                        context.showErrorDialog(R.string.error_app_version);
-                    }
-                } catch (JSONException e) {
-                    Log.d(TAG, "JSON Exception: " + e.getMessage());
-                }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.d(TAG, "Error: could not perform version check (" + error.getMessage() + ")");
-            }
-        });
-
-        queue.add(request);
 
         return null;
     }

@@ -207,6 +207,6 @@ public class GameFragment extends Fragment implements View.OnClickListener, Coll
      * activity.
      */
     public interface GameFragmentListener {
-        public void sendGameState(String gameState);
+//        public void sendGameState(String gameState);
     }
 }
