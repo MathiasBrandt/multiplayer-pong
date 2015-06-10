@@ -19,7 +19,7 @@ public class PongBall extends View {
     private Context context;
     private CollisionDetector collisionDetector;
 
-    private final int BALL_SIZE_DP = 50;
+    private final int BALL_SIZE_DP = 25;
     private final int BALL_HORIZONTAL_START_POS = 200;
     private final int BALL_VERTICAL_START_POS = 200;
     private final int BALL_INITIAL_VELOCITY = 10;

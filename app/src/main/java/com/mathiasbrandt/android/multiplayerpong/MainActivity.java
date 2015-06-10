@@ -35,7 +35,6 @@ import com.mathiasbrandt.android.multiplayerpong.tasks.VersionCheckerTask;
 
 import java.util.ArrayList;
 
-
 public class MainActivity
         extends Activity
         implements

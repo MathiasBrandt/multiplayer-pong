@@ -9,7 +9,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.google.android.gms.games.Player;
@@ -127,13 +126,19 @@ public class GameFragment extends Fragment implements View.OnClickListener, Coll
     }
 
     public void receiveGameState(GameState gameState) {
-        //pongBall.setX(gameState.getX());
-        pongBall.setX(bounds.getRight());
-        pongBall.setY(gameState.getY());
-        pongBall.setVelocityX(gameState.getVelocityX());
-        pongBall.setVelocityY(gameState.getVelocityY());
+        switch(gameState.getMType()) {
+            case SWITCH_TURN:
+                pongBall.setX(bounds.getRight());
+                pongBall.setY(gameState.getPositionY());
+                pongBall.setVelocityX(gameState.getVelocityX());
+                pongBall.setVelocityY(gameState.getVelocityY());
 
-        setMyTurn(true);
+                setMyTurn(true);
+                break;
+            case GAME_OVER:
+                stopGame();
+                Log.d(TAG, "Game over, you win!");
+        }
     }
 
     private void setMyTurn(Boolean myTurn) {
@@ -148,7 +153,10 @@ public class GameFragment extends Fragment implements View.OnClickListener, Coll
 
     @Override
     public void onScreenLeftCollision() {
-        pongBall.flipHorizontalVelocity();
+        stopGame();
+        String gameState = GameState.serialize(getActivity(), GameState.MessageType.GAME_OVER);
+        Log.d(TAG, "Game over, you lose!");
+        mListener.sendGameState(gameState);
     }
 
     @Override
@@ -164,7 +172,7 @@ public class GameFragment extends Fragment implements View.OnClickListener, Coll
         pongBall.flipHorizontalVelocity();
 
         // serialize game state before stopping the ball, otherwise velocity will be 0
-        String gameState = GameState.serialize(getActivity());
+        String gameState = GameState.serialize(getActivity(), GameState.MessageType.SWITCH_TURN);
 
         // send the game state to the opponent
         mListener.sendGameState(gameState);

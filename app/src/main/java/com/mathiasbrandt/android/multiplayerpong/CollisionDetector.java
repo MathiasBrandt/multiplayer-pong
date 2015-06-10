@@ -92,9 +92,9 @@ public class CollisionDetector {
 
         /*
         // if ball hits bat
-        float ballLeft = ball.getX();
-        float ballBottom = ball.getY() + ball.getLayoutParams().height;
-        float ballTop = ball.getY();
+        float ballLeft = ball.getPositionX();
+        float ballBottom = ball.getPositionY() + ball.getLayoutParams().height;
+        float ballTop = ball.getPositionY();
         else if(ballLeft <= bat.getRight() &&
                 ballBottom >= bat.getTop() &&
                 ballTop <= bat.getBottom() &&
